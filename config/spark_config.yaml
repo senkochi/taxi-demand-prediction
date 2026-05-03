@@ -1,0 +1,14 @@
+spark:
+  app_name: "Taxi-Demand-Prediction"
+  master: "local[4]"  # Use 4 cores locally; "spark://..." for cluster
+  
+  # Memory settings
+  driver_memory: "4g"
+  executor_memory: "4g"
+  executor_cores: 2
+  
+  # SQL settings
+  sql_shuffle_partitions: 200
+  
+  # Parquet optimization
+  parquet_compression: "snappy"
