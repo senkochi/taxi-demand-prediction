@@ -3,6 +3,8 @@
 **Purpose:** Giúp bạn prompt AI/Copilot hiệu quả bằng cách attach đúng file, context phù hợp  
 **Audience:** Person A, Person B, AI assistants
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+
 ---
 
 ## 1. Nguyên Tắc Cơ Bản

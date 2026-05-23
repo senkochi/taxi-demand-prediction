@@ -1,5 +1,7 @@
 # 🗄️ Module: Distributed Database - Cassandra for Taxi Time-Series
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+
 **Owner:** Person A (with Person B support) | **Duration:** Weeks 1-2, 3-5 | **Deliverables:** Cassandra schema, write/read pipelines, performance analysis
 
 ---

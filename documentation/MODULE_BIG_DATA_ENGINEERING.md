@@ -2,6 +2,10 @@
 
 **Owner:** Person A | **Duration:** Weeks 1-6 | **Deliverables:** Feature datasets, ETL scripts, performance reports
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+- **Big Data Component:** PySpark ETL, distributed clustering, 200+ partitions, 5M+ records processing
+- **Distributed Database Component:** Write features to Cassandra (Week 4), manage replication factor 3, test QUORUM consistency
+
 ---
 
 ## 1. Spark ETL Implementation (Weeks 1-2)

@@ -2,6 +2,10 @@
 
 **Purpose:** Define how to systematically track, log, and compare experiments across 4 clustering methods
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+- Big Data Focus: Log Spark job metrics, feature extraction performance, data quality metrics
+- Distributed Database Focus: Log Cassandra write/read latencies, consistency levels tested, fault tolerance results
+
 ---
 
 ## 1. Experiment Tracking Overview
