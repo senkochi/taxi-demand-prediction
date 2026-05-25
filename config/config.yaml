@@ -9,8 +9,8 @@ data:
   output_path: "./data/outputs/"
   external_path: "./data/external/"
   
-  # Data parameters
-  date_range: ["2022-01-01", "2023-12-31"]
+  # Data parameters (NYC taxi data: Jan 2019 - Jun 2020)
+  date_range: ["2019-01-01", "2020-06-30"]
   sample_size: null  # null = use all data
   
 paths:
@@ -50,7 +50,7 @@ model:
   dropout: 0.2
   
   training:
-    batch_size: 32
+    batch_size: 64
     epochs: 100
     learning_rate: 0.001
     early_stopping_patience: 15

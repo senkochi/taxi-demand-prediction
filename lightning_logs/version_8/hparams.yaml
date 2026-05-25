@@ -1,0 +1,4 @@
+accumulation_steps: 1
+learning_rate: 0.001
+patience: 3
+weight_decay: 1.0e-06

@@ -437,7 +437,7 @@ data:
   external_path: "./data/external/"
   
   # Data parameters
-  date_range: ["2022-01-01", "2023-12-31"]
+  date_range: ["2019-01-01", "2020-06-30"]  # NYC taxi data: Jan 2019 - Jun 2020
   sample_size: null  # null = use all data
   
 paths:
