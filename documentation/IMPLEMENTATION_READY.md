@@ -1,8 +1,14 @@
 # 🎉 Documentation System - Final Summary
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+
 **Project:** Taxi Demand Prediction with Clustering Methods  
 **Date:** May 3, 2026  
 **Status:** ✅ Complete - Ready for Implementation
+**Dual-Module Structure:**
+  - **Big Data (40%):** Weeks 1-6 ETL, feature engineering, performance benchmarking
+  - **Distributed Database (40%):** Weeks 1-2, 4, 6 Cassandra setup, write/read pipelines, fault tolerance testing
+  - **Deep Learning (20%):** Weeks 5-7 SSTZIP-GNN implementation and evaluation
 
 ---
 

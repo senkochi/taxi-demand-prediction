@@ -2,6 +2,10 @@
 
 **Purpose:** Define project structure, environment setup, dependencies, and development workflow
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+- Big Data Stack: PySpark, PyArrow, Parquet, 40+ ML/DL packages
+- Distributed Database Stack: Cassandra 4.0 (Docker), cassandra-driver 3.30.0, CQL schema management
+
 ---
 
 ## 1. Repository Structure

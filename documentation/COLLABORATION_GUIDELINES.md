@@ -2,6 +2,8 @@
 
 **Purpose:** Define team structure, communication, code review process, and best practices for 2-person project
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+
 ---
 
 ## 1. Team Structure & Roles
@@ -10,6 +12,24 @@
 - **Duration:** < 2 months (8 weeks)
 - **Team Size:** 2 people
 - **Coordination:** Weekly syncs + asynchronous collaboration via Git
+- **Two-Subject Structure:**
+  - **Big Data Subject (40%):** PySpark ETL, distributed feature engineering, performance optimization, scalability testing
+  - **Distributed Database Subject (40%):** Cassandra cluster management, replication, fault tolerance, consistency analysis
+  - **Deep Learning Subject (20%):** SSTZIP-GNN architecture, training pipeline, model evaluation
+
+### Subject Responsibilities Matrix
+
+| Task | Big Data | Distributed DB | Deep Learning | Owner |
+|------|----------|-----------------|----------------|-------|
+| Spark cluster setup | ✅ Core | ⚠️ Support | | Person A |
+| Data ingestion & Parquet | ✅ Core | ⚠️ Validation | | Person A |
+| Feature extraction | ✅ Core | ⚠️ Storage planning | | Person A |
+| Cassandra schema design | ⚠️ Support | ✅ Core | | Person A |
+| Write features to Cassandra | ⚠️ Support | ✅ Core | | Person A |
+| Read features from Cassandra | ⚠️ Support | ✅ Core | | Person B |
+| Fault tolerance testing | ⚠️ Monitoring | ✅ Core | | Person A |
+| Model training | | | ✅ Core | Person B |
+| Inference to Cassandra | ⚠️ Support | ✅ Core | ⚠️ Integration | Person B |
 
 ### Role Definition
 

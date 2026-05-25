@@ -2,6 +2,11 @@
 
 **Owner:** Person B | **Duration:** Weeks 5-6 | **Deliverables:** Trained models, evaluation metrics, visualization
 
+**⚠️ Note on Distributed Database Integration:**
+- Features are read from Cassandra (written in Week 4 by Person A)
+- Inference results are written back to Cassandra for real-time serving
+- See MODULE_DISTRIBUTED_DATABASE.md for read/write pipeline details
+
 ---
 
 ## 1. SSTZIP-GNN Architecture Overview
@@ -20,6 +25,67 @@ Input (Spatial-Temporal Graph)
     └─→ ZIP Loss Function
          = Binary Cross-Entropy(π) + Poisson Log-Likelihood(λ|y)
 ```
+
+---
+
+## 1.1 Distributed Database Integration: Reading Features from Cassandra
+
+**Timeline:** Week 5 (after Person A writes features in Week 4)
+
+```python
+# src/data/cassandra_loader.py
+from cassandra.cluster import Cluster
+import pandas as pd
+
+class CassandraFeatureLoader:
+    """Load engineered features from Cassandra for training"""
+    
+    def __init__(self, hosts=['localhost'], port=9042, keyspace='taxi_db'):
+        cluster = Cluster(hosts, port=port)
+        self.session = cluster.connect(keyspace)
+        
+    def read_features(self, method, time_bucket, date_range):
+        """
+        Args:
+            method: 'baseline' | 'method1' | 'method2' | 'method3'
+            time_bucket: 15 | 30 | 60 (minutes)
+            date_range: (start_date, end_date)
+        
+        Returns:
+            features_df: Pandas DataFrame with all features
+        """
+        
+        query = f"""
+        SELECT time_bucket, zone_id, demand_count, avg_fare, avg_distance, 
+               avg_passenger, trip_duration, method
+        FROM taxi_demand
+        WHERE method = %s 
+          AND time_bucket >= %s 
+          AND time_bucket <= %s
+          AND time_bucket_minutes = %s
+        ALLOW FILTERING
+        """
+        
+        rows = self.session.execute(query, [method, date_range[0], date_range[1], time_bucket])
+        return pd.DataFrame(rows)
+    
+    def read_with_consistency(self, query, consistency_level='QUORUM'):
+        """Read with specific consistency level for testing CAP theorem"""
+        self.session.consistency_level = consistency_level
+        results = self.session.execute(query)
+        return pd.DataFrame(results)
+
+# Usage in training
+loader = CassandraFeatureLoader()
+features_df = loader.read_features(method='method2', time_bucket=30, 
+                                    date_range=('2019-01-01', '2019-12-31'))
+```
+
+**Key Points:**
+- Features written to Cassandra in Week 4 are now available for reading
+- Test consistency levels: ONE, LOCAL_QUORUM, QUORUM, ALL
+- Monitor read latencies and availability across different consistency settings
+- Part of Distributed Database module evaluation
 
 ---
 

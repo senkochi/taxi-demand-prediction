@@ -2,6 +2,8 @@
 
 **Purpose:** Define detailed data flow, format specifications, and technical implementation for Taxi Demand Prediction project
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+
 ---
 
 ## 1. End-to-End Data Flow
@@ -21,11 +23,19 @@
     ↓
 [4. Temporal Aggregation (15min, 30min, 60min)]
     ↓
-[5. Train/Val/Test Split]
+[5. **CASSANDRA STORAGE** ⭐ Distributed Database]
+    ├─→ Write features (RF=3, QUORUM consistency)
+    ├─→ Table: taxi_demand
+    └─→ Test fault tolerance & replication
     ↓
-[6. Model Training (4 variants)]
+[6. Train/Val/Test Split]
     ↓
-[7. Inference & Evaluation]
+[7. Model Training (4 variants)]
+    ↓
+[8. Inference & Evaluation]
+    ↓
+[9. **CASSANDRA READ** ⭐ Distributed Database]
+    └─→ Read predictions from Cassandra, analyze consistency
 ```
 
 ---

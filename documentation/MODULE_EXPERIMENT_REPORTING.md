@@ -1,5 +1,7 @@
 # 📊 Module 3: Evaluation, Analysis & Thesis Reporting
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+
 **Owner:** Person B | **Duration:** Weeks 7-8 | **Deliverables:** Comparison results, visualizations, thesis reports
 
 ---

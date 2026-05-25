@@ -1,8 +1,14 @@
 # 📋 Project Roadmap: Taxi Demand Prediction
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+
 **Duration:** < 2 months (8 weeks)  
 **Team:** 2 people  
 **Objective:** Compare 4 clustering methods for taxi demand prediction (Baseline + 3 Methods)
+**Dual-Module:**
+  - **Big Data Module:** PySpark ETL, feature engineering, scalability testing (40% of project)
+  - **Distributed Database Module:** Cassandra clustering, fault tolerance, consistency analysis (40% of project)
+  - **Deep Learning Module:** SSTZIP-GNN modeling (20% of project)
 
 ---
 

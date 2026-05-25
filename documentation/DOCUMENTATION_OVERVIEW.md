@@ -4,6 +4,8 @@
 **Project:** Taxi Demand Prediction with Clustering Methods Comparison  
 **Team:** 2 people | **Duration:** < 2 months
 
+**⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
+
 ---
 
 ## 📋 Files in This Documentation System
