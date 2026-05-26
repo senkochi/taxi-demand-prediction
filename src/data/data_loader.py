@@ -58,9 +58,11 @@ class TaxiDemandDataset(Dataset):
             zone_df = features_df[features_df['zone_id'] == zone_id].reset_index(drop=True)
             self.zone_data[zone_id] = zone_df
         
-        # Feature columns (excluding metadata)
+        # Feature columns (excluding metadata and non-numeric)
         metadata_cols = ['zone_id', 'window_start', 'window_end', 'date_str', 'date_day', 'hour', 'Borough', 'Zone', 'service_zone']
-        self.feature_cols = [col for col in features_df.columns if col not in metadata_cols + ['demand_count']]
+        # Only include numeric columns
+        numeric_cols = features_df.select_dtypes(include=[np.number]).columns.tolist()
+        self.feature_cols = [col for col in numeric_cols if col not in metadata_cols + ['demand_count']]
         self.num_features = len(self.feature_cols)
         
         # Normalization

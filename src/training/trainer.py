@@ -23,6 +23,7 @@ class SSTZIPGNNLightning(pl.LightningModule):
     
     def __init__(self,
                  model: nn.Module,
+                 feature_dim: int = 4,
                  learning_rate: float = 0.001,
                  weight_decay: float = 1e-5,
                  patience: int = 10,
@@ -30,6 +31,7 @@ class SSTZIPGNNLightning(pl.LightningModule):
         """
         Args:
             model: SSTZIP-GNN model instance
+            feature_dim: Number of input features (default 4, actual ~9)
             learning_rate: Adam learning rate
             weight_decay: L2 regularization coefficient
             patience: Early stopping patience
@@ -37,6 +39,7 @@ class SSTZIPGNNLightning(pl.LightningModule):
         """
         super().__init__()
         self.model = model
+        self.feature_dim = feature_dim
         self.learning_rate = learning_rate
         self.weight_decay = weight_decay
         self.patience = patience
@@ -50,7 +53,7 @@ class SSTZIPGNNLightning(pl.LightningModule):
         # Feature projection: from input features to spatial dimension
         # Get spatial_dim from model
         spatial_dim = model.spatial_dim
-        self.feature_projection = nn.Linear(4, spatial_dim)
+        self.feature_projection = nn.Linear(feature_dim, spatial_dim)
         
         self.save_hyperparameters(ignore=['model'])
     
@@ -66,11 +69,11 @@ class SSTZIPGNNLightning(pl.LightningModule):
         # Reshape to [batch, features, seq_length] for temporal encoder
         x = x.transpose(1, 2)  # [batch, features, seq_length]
         
-        # Project from input features (4) to spatial_dim (64)
-        # x: [batch, 4, seq_length] -> [batch, 64, seq_length]
-        x_batch_features = x.transpose(1, 2)  # [batch, seq_length, 4]
-        x_proj = self.feature_projection(x_batch_features)  # [batch, seq_length, 64]
-        x_proj = x_proj.transpose(1, 2)  # [batch, 64, seq_length]
+        # Project from input features to spatial_dim (64)
+        # x: [batch, features, seq_length] -> [batch, spatial_dim, seq_length]
+        x_batch_features = x.transpose(1, 2)  # [batch, seq_length, features]
+        x_proj = self.feature_projection(x_batch_features)  # [batch, seq_length, spatial_dim]
+        x_proj = x_proj.transpose(1, 2)  # [batch, spatial_dim, seq_length]
         
         # Use temporal encoder on projected features
         x_temporal = self.model.temporal_encoder(x_proj)  # [batch, temporal_dim, seq_length]
@@ -103,11 +106,11 @@ class SSTZIPGNNLightning(pl.LightningModule):
         # Reshape to [batch, features, seq_length] for temporal encoder
         x = x.transpose(1, 2)  # [batch, features, seq_length]
         
-        # Project from input features (4) to spatial_dim (64)
-        # x: [batch, 4, seq_length] -> [batch, 64, seq_length]
-        x_batch_features = x.transpose(1, 2)  # [batch, seq_length, 4]
-        x_proj = self.feature_projection(x_batch_features)  # [batch, seq_length, 64]
-        x_proj = x_proj.transpose(1, 2)  # [batch, 64, seq_length]
+        # Project from input features to spatial_dim (64)
+        # x: [batch, features, seq_length] -> [batch, spatial_dim, seq_length]
+        x_batch_features = x.transpose(1, 2)  # [batch, seq_length, features]
+        x_proj = self.feature_projection(x_batch_features)  # [batch, seq_length, spatial_dim]
+        x_proj = x_proj.transpose(1, 2)  # [batch, spatial_dim, seq_length]
         
         # Use temporal encoder on projected features
         x_temporal = self.model.temporal_encoder(x_proj)  # [batch, temporal_dim, seq_length]
@@ -140,10 +143,10 @@ class SSTZIPGNNLightning(pl.LightningModule):
         # Reshape to [batch, features, seq_length] for temporal encoder
         x = x.transpose(1, 2)  # [batch, features, seq_length]
         
-        # Project from input features (4) to spatial_dim (64)
-        x_batch_features = x.transpose(1, 2)  # [batch, seq_length, 4]
-        x_proj = self.feature_projection(x_batch_features)  # [batch, seq_length, 64]
-        x_proj = x_proj.transpose(1, 2)  # [batch, 64, seq_length]
+        # Project from input features to spatial_dim (64)
+        x_batch_features = x.transpose(1, 2)  # [batch, seq_length, features]
+        x_proj = self.feature_projection(x_batch_features)  # [batch, seq_length, spatial_dim]
+        x_proj = x_proj.transpose(1, 2)  # [batch, spatial_dim, seq_length]
         
         # Use simplified forward: temporal encoder directly on features
         with torch.no_grad():

@@ -1,0 +1,5 @@
+accumulation_steps: 1
+feature_dim: 9
+learning_rate: 0.001
+patience: 15
+weight_decay: 1.0e-05

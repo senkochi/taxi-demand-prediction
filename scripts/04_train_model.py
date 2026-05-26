@@ -72,9 +72,9 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         print(f"  - Adjacency matrix: {adj_matrix.shape}")
             
         # =========================================================================
-        # 3. INITIALIZE MODEL
+        # 3. GET FEATURE DIMENSION
         # =========================================================================
-        print(f"\n[2/7] Initializing SSTZIP-GNN model...")
+        print(f"\n[2/7] Getting feature dimension from data...")
         
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
@@ -86,6 +86,12 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
             x_sample = sample_batch
         
         feature_dim = x_sample.shape[-1] if x_sample.dim() > 2 else x_sample.shape[1]
+        print(f"✓ Feature dimension: {feature_dim}")
+        
+        # =========================================================================
+        # 3. INITIALIZE MODEL
+        # =========================================================================
+        print(f"\n[3/7] Initializing SSTZIP-GNN model...")
         
         model = SSTZIPGNNModel(
             num_zones=adj_matrix.shape[0],
@@ -109,10 +115,11 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         # =========================================================================
         # 4. CREATE LIGHTNING TRAINER
         # =========================================================================
-        print(f"\n[3/7] Setting up PyTorch Lightning trainer...")
+        print(f"\n[4/7] Setting up PyTorch Lightning trainer...")
         
         trainer_module = SSTZIPGNNLightning(
             model=model,
+            feature_dim=feature_dim,
             learning_rate=training_config.get('learning_rate', 0.001),
             weight_decay=1e-5,
             patience=training_config.get('early_stopping_patience', 10),
@@ -149,7 +156,7 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         # =========================================================================
         # 5. TRAIN MODEL
         # =========================================================================
-        print(f"\n[4/7] Training model ({epochs} epochs)...")
+        print(f"\n[5/7] Training model ({epochs} epochs)...")
         start_time = datetime.now()
         
         pl_trainer.fit(trainer_module, train_dataloaders=train_loader, 
@@ -162,7 +169,7 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         # =========================================================================
         # 6. EVALUATE ON TEST SET
         # =========================================================================
-        print(f"\n[5/7] Evaluating on test set...")
+        print(f"\n[6/7] Evaluating on test set...")
         
         model.eval()
         test_predictions = []
@@ -206,7 +213,7 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         # =========================================================================
         # 7. COMPUTE METRICS
         # =========================================================================
-        print(f"\n[6/7] Computing metrics...")
+        print(f"\n[7/7] Computing metrics...")
         
         mae = Metrics.mean_absolute_error(y_pred, y_test) if len(y_test) > 0 else 0.0
         rmse = Metrics.root_mean_squared_error(y_pred, y_test) if len(y_test) > 0 else 0.0
@@ -229,7 +236,8 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         # =========================================================================
         # 8. SAVE RESULTS
         # =========================================================================
-        print(f"\n[7/7] Saving results...")
+        print(f"\n[8/8] Saving results...")
+        print(f"✓ Feature dimension used: {feature_dim}")
         
         results_dir = Path(f'checkpoints/{method}')
         results_dir.mkdir(parents=True, exist_ok=True)
@@ -251,7 +259,7 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         return metrics
         
     except Exception as e:
-        print(f"\n❌ Error in experiment {method}: {str(e)}")
+        print(f"\n[ERROR] Error in experiment {method}: {str(e)}")
         traceback.print_exc()
         raise e
 
@@ -321,14 +329,14 @@ def main():
             metrics = run_experiment(method, config, data_module, adj_matrix)
             results_summary[method] = metrics
             
-            print(f"\n✅ {method.upper()} training completed successfully!")
+            print(f"\n[OK] {method.upper()} training completed successfully!")
             
         except FileNotFoundError as e:
-            print(f"\n⚠️  Skipping {method}: {str(e)}")
+            print(f"\n[SKIP] Skipping {method}: {str(e)}")
             print("   Make sure clustering results exist in data/models/")
             continue
         except Exception as e:
-            print(f"\n❌ Error training {method}: {str(e)}")
+            print(f"\n[ERROR] Error training {method}: {str(e)}")
             traceback.print_exc()
             continue
     
