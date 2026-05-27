@@ -11,7 +11,7 @@ data:
   
   # Data parameters (NYC taxi data: Jan 2019 - Jun 2020)
   date_range: ["2019-01-01", "2020-06-30"]
-  sample_size: 500000  # limit for faster prototyping; set to null for full data
+  sample_size: null  # limit for faster prototyping; set to null for full data
   
 paths:
   scripts: "./scripts/"
