@@ -17,11 +17,11 @@
 ### Week 1: Environment & Infrastructure
 | Task | Owner | Duration | Deliverable |
 |------|-------|----------|-------------|
-| **1.1** Set up Git repo, Spark cluster, Cassandra cluster | Person A | 1.5 days | Docker Cassandra 3-node cluster running |
+| **1.1** Set up Git repo, Spark cluster, MongoDB Atlas | Person A | 0.5 days | MongoDB Atlas cluster provisioned + connection string ||
 | **1.2** Data ingestion: NYC Taxi dataset (raw → Parquet) | Person A | 2 days | 5M+ records in Parquet format |
 | **1.3** Exploratory Data Analysis (EDA) & data profiling | Person B | 2 days | EDA report + data quality assessment |
 | **1.4** Define feature schema & naming conventions | Both | 0.5 day | FEATURE_REGISTRY.md |
-| **1.5** Cassandra schema creation & validation | Person A | 1 day | taxi_db keyspace with taxi_demand & cluster_metadata tables |
+| **1.5** MongoDB schema creation & validation | Person A | 0.5 days | taxi_db database with taxi_demand & cluster_metadata collections |
 
 ### Week 2: Baseline Method & Feature Engineering
 | Task | Owner | Duration | Deliverable |
@@ -49,7 +49,7 @@
 | **4.1** Extract 5 features: trip_count, avg_distance, avg_fare, avg_passenger, duration | Person A | 1.5 days | Feature matrix for all zones |
 | **4.2** Feature normalization & dimension reduction (PCA if needed) | Person B | 1 day | Normalized feature matrix |
 | **4.3** K-Means++ clustering + Silhouette analysis | Person A | 1 day | `method2_clusters.pkl` + cluster interpretation |
-| **4.4** **Write Method 2 features to Cassandra** | Person A | 1 day | Features persisted with RF=3, QUORUM consistency |
+| **4.4** **Write Method 2 features to MongoDB Atlas** | Person A | 0.5 days | Features persisted in MongoDB with indexed collections |
 | **4.5** Label clusters (downtown, airport, residential, etc.) | Person B | 0.5 day | Cluster semantics document |
 
 **Milestone 2 ✅:** Method 1 & 2 clusters ready
@@ -98,17 +98,17 @@
 
 ---
 
-## 📝 Phase 6: Distributed Database Analysis (Week 6)
+## 📝 Phase 6: Cloud Database Analysis (Week 6)
 
-### Week 6: Cassandra Distributed System Evaluation
+### Week 6: MongoDB Atlas Distributed System Evaluation
 | Task | Owner | Duration | Deliverable |
 |------|-------|----------|-------------|
-| **6.1** Test fault tolerance: kill nodes 1-at-a-time | Person A | 1 day | Fault tolerance report + write/read availability data |
-| **6.2** Analyze consistency levels: latency vs safety trade-offs | Person A | 1 day | Performance benchmarks (ONE vs QUORUM vs ALL) |
-| **6.3** Read queries: test time-range queries, scalability | Person B | 1 day | Query performance analysis + optimization recommendations |
-| **6.4** Distributed system analysis: CAP theorem, replication, recovery | Both | 1 day | Architecture analysis document |
+| **6.1** Test fault tolerance: Multi-region failover simulation | Person A | 1 day | Fault tolerance report + automatic failover verification |
+| **6.2** Analyze read preferences: consistency vs latency trade-offs | Person A | 1 day | Performance benchmarks (PRIMARY vs SECONDARY) |
+| **6.3** Read queries: test time-range queries, index performance | Person B | 1 day | Query performance analysis + index optimization |
+| **6.4** Cloud database analysis: replica sets, sharding, recovery | Both | 1 day | Architecture analysis document |
 
-**Milestone 6 ✅:** Cassandra analysis complete & thesis ready
+**Milestone 6 ✅:** MongoDB Atlas analysis complete & thesis ready
 
 **Milestone 7 ✅:** Thesis complete & submitted (2 courses: Big Data + Distributed Database)
 

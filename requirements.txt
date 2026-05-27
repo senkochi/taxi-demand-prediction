@@ -10,7 +10,8 @@ pytorch-lightning>=2.0.0
 torch-geometric>=2.3.0
 
 # Database
-cassandra-driver==3.25.0
+pymongo==4.6.0
+duckdb==0.8.0
 
 # Utilities
 pyyaml==6.0
@@ -34,6 +35,5 @@ flake8==6.0.0
 isort==5.12.0
 mypy==1.0.0
 
-# Logging & Monitoring
-mlflow==2.2.0
-wandb==0.15.0
+# Logging & Monitoring (JSON-based experiment tracking)
+tensorboard==2.12.0

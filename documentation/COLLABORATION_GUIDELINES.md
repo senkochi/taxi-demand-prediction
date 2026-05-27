@@ -527,7 +527,7 @@ Week X Status (auto-updated every Monday):
 
 **Submission Checklist:**
 - [ ] Code reproducible (clear setup instructions)
-- [ ] All results documented (MLflow runs saved)
+- [ ] All results documented (JSON files saved)
 - [ ] Figures publication-ready (high resolution)
 - [ ] Thesis reports complete
 - [ ] Presentation rehearsed
@@ -567,7 +567,7 @@ Week X Status (auto-updated every Monday):
 - GitHub: Version control
 - Slack/Teams: Communication
 - Notion/Google Docs: Documentation
-- MLflow: Experiment tracking
+- JSON: Experiment tracking
 - Local/Cloud: Compute
 
 **Success is when we deliver:**

@@ -1,18 +1,19 @@
+# 🗄️ Module: Cloud Database - MongoDB Atlas for Taxi Time-Series
 # 🗄️ Module: Distributed Database - Cassandra for Taxi Time-Series
 
 **⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
 
-**Owner:** Person A (with Person B support) | **Duration:** Weeks 1-2, 3-5 | **Deliverables:** Cassandra schema, write/read pipelines, performance analysis
+**Owner:** Person A (with Person B support) | **Duration:** Weeks 1-2 (FAST!), 3-5 | **Deliverables:** MongoDB Atlas setup, write/read pipelines, performance analysis
 
 ---
 
-## 1. Cassandra Fundamentals for This Project
+## 1. MongoDB Atlas vs Self-Hosted: Why We Choose Atlas (SPEED!)
 
-### 1.1 Why Cassandra for Taxi Demand?
+### 1.1 For Time-Series Taxi Data (Quick Setup)
 
 **Our Time-Series Data:**
 ```
-For each (cluster_id, time_bucket, zone_id):
+For each (method, time_bucket, cluster_id):
   - demand_count: integer
   - avg_fare: float
   - avg_distance: float
@@ -21,683 +22,483 @@ For each (cluster_id, time_bucket, zone_id):
 Characteristics:
 - Write-heavy: millions of taxi events per day
 - Time-ordered: queries by time range
-- Distributed: need horizontal scaling
+- Distributed: need automatic failover
 - Fault-tolerant: high availability needed
+- FAST SETUP: One-click provisioning needed (1 week deadline!)
 ```
 
-**Cassandra Advantages:**
+**MongoDB Atlas Advantages:**
 ```
-✅ Consistent hashing: spreads writes evenly (no hotspots)
-✅ Time-series ready: clustering keys for range queries
-✅ High availability: write survives node failures
-✅ Tunable consistency: balance consistency vs availability
-✅ Linear scalability: add nodes = more throughput
+✅ No infrastructure: Fully managed, 5-minute setup
+✅ Time-series ready: Native time-series collections  
+✅ High availability: Automatic multi-region failover
+✅ Tunable consistency: Choice of read preferences
+✅ Auto-scaling: Handles growth automatically
+✅ Free tier: Perfect for development/thesis work
 ```
 
-### 1.2 CAP Theorem: Why Cassandra is AP
+### 1.2 CAP Theorem: MongoDB for Distributed Systems Thesis
 
+**Replica Sets (Not Sharding):**
 ```
 CAP Theorem: Pick 2 of 3
-  - Consistency: all nodes see same data
+  - Consistency: all replicas see same data
   - Availability: system always responsive
   - Partition tolerance: survives network splits
 
-Cassandra = AP (Availability + Partition tolerance)
-  - When network splits: writes succeed on both sides
-  - Replication resolves conflicts later (eventual consistency)
+MongoDB (Replica Set) = CP + Partition Tolerance
+  - Strong consistency by default (PRIMARY writes)
+  - Automatic failover: new PRIMARY elected instantly
+  - Multi-region deployment: test partition scenarios
   
-For taxi data:
-  ✅ Slightly stale demand counts acceptable
-  ✅ High availability critical (real-time dashboards)
-  ✅ Write availability > read consistency
+For taxi data + thesis:
+  ✅ Consistency important: demand predictions need accuracy
+  ✅ High availability critical: real-time dashboards
+  ✅ Automatic failover saves week's worth of setup time
+  ✅ Multi-region tests distributed system concepts
 ```
 
 ---
 
-## 2. Local Cassandra Setup (Docker)
+## 2. MongoDB Atlas Setup (5 Minutes!)
 
-### 2.1 Docker Compose Configuration
+### 2.1 Quick Start
 
-```yaml
-# docker/docker-compose.yml - Cassandra section
-
-version: '3.9'
-services:
-  
-  # Cassandra cluster: 3 nodes for replication testing
-  cassandra-1:
-    image: cassandra:4.0
-    container_name: cassandra-node-1
-    environment:
-      CASSANDRA_CLUSTER_NAME: "taxi-cluster"
-      CASSANDRA_DC: "us-east-1"
-      CASSANDRA_RACK: "rack1"
-      CASSANDRA_SEEDS: "cassandra-1"  # Bootstrap node
-    ports:
-      - "9042:9042"  # CQL port (client)
-      - "7000:7000"  # Inter-node communication
-    volumes:
-      - cassandra-1-data:/var/lib/cassandra
-    networks:
-      - taxi-network
-    healthcheck:
-      test: ["CMD", "cqlsh", "-e", "SELECT 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  cassandra-2:
-    image: cassandra:4.0
-    container_name: cassandra-node-2
-    environment:
-      CASSANDRA_CLUSTER_NAME: "taxi-cluster"
-      CASSANDRA_DC: "us-east-1"
-      CASSANDRA_RACK: "rack1"
-      CASSANDRA_SEEDS: "cassandra-1"
-    depends_on:
-      cassandra-1:
-        condition: service_healthy
-    volumes:
-      - cassandra-2-data:/var/lib/cassandra
-    networks:
-      - taxi-network
-
-  cassandra-3:
-    image: cassandra:4.0
-    container_name: cassandra-node-3
-    environment:
-      CASSANDRA_CLUSTER_NAME: "taxi-cluster"
-      CASSANDRA_DC: "us-east-1"
-      CASSANDRA_RACK: "rack2"
-      CASSANDRA_SEEDS: "cassandra-1"
-    depends_on:
-      cassandra-1:
-        condition: service_healthy
-    volumes:
-      - cassandra-3-data:/var/lib/cassandra
-    networks:
-      - taxi-network
-
-volumes:
-  cassandra-1-data:
-  cassandra-2-data:
-  cassandra-3-data:
-
-networks:
-  taxi-network:
-    driver: bridge
+**Step 1: Create Free Cluster (2 min)**
+```
+1. Go to https://www.mongodb.com/cloud/atlas
+2. Click "Try Free"
+3. Create Account (use Google/GitHub for SPEED)
+4. Create Organization → Create Project  
+5. Build Database → Choose Shared Tier (FREE)
+6. Select Cloud Provider: AWS
+7. Region: us-east-1
+8. Create Cluster → DONE (5-10 min provisioning)
 ```
 
-### 2.2 Setup Commands
+**Step 2: Network Access (1 min)**
+```
+In Atlas Dashboard:
+  Security → Network Access
+  Add IP: 0.0.0.0/0  (dev only)
+  OR: Your specific IP
+```
 
+**Step 3: Get Connection String (1 min)**
+```
+Cluster → Connect → Connect your application
+Copy: mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/taxi_db
+```
+
+**Step 4: Store in .env (30 sec)**
 ```bash
-# Start Cassandra cluster
-docker-compose -f docker/docker-compose.yml up -d cassandra-1 cassandra-2 cassandra-3
+# .env
+MONGODB_URI=mongodb+srv://your_user:your_pass@your_cluster.mongodb.net/taxi_db?retryWrites=true&w=majority
+```
 
-# Wait for cluster to stabilize (~30 seconds)
-sleep 30
+✅ **TOTAL TIME: 5 minutes. Start coding immediately.**
 
-# Verify cluster status
-docker exec cassandra-node-1 nodetool status
+---
 
-# Expected output:
-# Datacenter: us-east-1
-# Status=Up/Down, State=Normal/Leaving/Joining/Moving
-# --  Address      Load       Tokens  Owns    Host ID
-# UN  172.19.0.2   104.5 KB   256     33.3%   abcd1234
-# UN  172.19.0.3   108.3 KB   256     33.3%   efgh5678
-# UN  172.19.0.4   102.1 KB   256     33.3%   ijkl9012
+## 3. Database Schema for Taxi Demand
 
-# Connect to CQL shell
-docker exec -it cassandra-node-1 cqlsh
+### 3.1 Create Collections (1 minute)
+
+```python
+# scripts/01_create_mongodb_schema.py
+
+from pymongo import MongoClient
+from datetime import datetime
+import os
+
+def create_taxi_demand_schema():
+    """Create MongoDB collections and indexes"""
+    
+    client = MongoClient(os.getenv('MONGODB_URI'))
+    db = client['taxi_db']
+    
+    # Create time-series collection
+    try:
+        db.create_collection(
+            "taxi_demand",
+            timeseries={
+                "timeField": "timestamp",
+                "metaField": "metadata",
+                "granularity": "hours"
+            }
+        )
+        print("✓ Time-series collection created")
+    except:
+        print("✓ Collection already exists")
+    
+    # Create metadata collection
+    try:
+        db.create_collection("cluster_metadata")
+    except:
+        pass
+    
+    # Create indexes for speed
+    db.taxi_demand.create_index([("metadata.method", 1), ("timestamp", -1)])
+    db.taxi_demand.create_index([("metadata.cluster_id", 1)])
+    db.taxi_demand.create_index([("timestamp", 1)])  # For TTL
+    
+    db.cluster_metadata.create_index([("method", 1), ("cluster_id", 1)], unique=True)
+    
+    print("✓ All indexes created")
+    client.close()
+```
+
+### 3.2 Document Schema
+
+**Time-Series Document:**
+```javascript
+{
+  "timestamp": ISODate("2024-03-15T14:30:00Z"),
+  "metadata": {
+    "method": "method2",
+    "time_bucket": 60,
+    "cluster_id": 5,
+    "zone_id": 42
+  },
+  "measurements": {
+    "demand_count": 1250,
+    "avg_fare": 14.85,
+    "avg_distance": 2.3,
+    "avg_passenger_count": 1.8,
+    "avg_trip_duration": 850,
+    "sum_fare": 18562.50
+  },
+  "created_at": ISODate("2024-03-15T14:35:00Z")
+}
 ```
 
 ---
 
-## 3. Schema Design for Taxi Demand
+## 4. Write Pipeline: Pandas/PySpark → MongoDB
 
-### 3.1 Keyspace (Database) Creation
-
-```cql
--- Create keyspace with replication
-CREATE KEYSPACE IF NOT EXISTS taxi_db
-WITH replication = {
-  'class': 'SimpleStrategy',
-  'replication_factor': 3
-};
-
--- Verify replication
-DESCRIBE KEYSPACE taxi_db;
-```
-
-**Replication Factor = 3:**
-- Each data item stored on 3 nodes
-- Can lose 2 nodes and still have data
-- Example: If network splits (2 nodes vs 1), both sides have data
-
-### 3.2 Main Table: taxi_demand
-
-```cql
-USE taxi_db;
-
--- Partition key: (method, time_bucket, cluster_id)
--- Clustering key: (timestamp)
--- This allows efficient range queries by time
-
-CREATE TABLE IF NOT EXISTS taxi_demand (
-  method TEXT,                    -- baseline, method1, method2, method3
-  time_bucket INT,                -- 15, 30, or 60 (minutes)
-  cluster_id INT,                 -- 0-K clusters per method
-  timestamp BIGINT,               -- Unix timestamp (seconds)
-  zone_id INT,                    -- Original zone ID
-  
-  -- Demand metrics
-  demand_count INT,               -- Number of trips
-  avg_fare FLOAT,                 -- Average fare
-  avg_distance FLOAT,             -- Average trip distance
-  avg_passenger_count FLOAT,      -- Average passengers
-  avg_trip_duration INT,          -- Average duration (seconds)
-  sum_fare DOUBLE,                -- Total fare
-  
-  -- Metadata
-  record_date TEXT,               -- YYYY-MM-DD for date-based queries
-  created_at TIMESTAMP,           -- When record was inserted
-  
-  PRIMARY KEY ((method, time_bucket, cluster_id), timestamp)
-) WITH 
-  CLUSTERING ORDER BY (timestamp DESC) AND
-  compaction = {'class': 'TimeWindowCompactionStrategy', 'compaction_window_unit': 'DAYS', 'compaction_window_size': 1};
-
--- Index for zone-based queries
-CREATE INDEX IF NOT EXISTS idx_zone_id ON taxi_demand(zone_id);
-
--- Index for date-based queries (for data retention)
-CREATE INDEX IF NOT EXISTS idx_record_date ON taxi_demand(record_date);
-```
-
-**Key Design Decisions:**
-
-```
-Partition Key: (method, time_bucket, cluster_id)
-  Why: Spreads writes across nodes
-       Different methods/buckets/clusters write to different partitions
-       No hotspots (vs if we used just method or timestamp)
-
-Clustering Key: (timestamp DESC)
-  Why: Range queries by time (e.g., "get demand for March")
-       DESC order = newest first (typical time-series query)
-
-TWCS (Time Window Compaction):
-  Why: Optimized for time-series data
-       Automatically deletes old data (TTL-friendly)
-       Better read performance for time ranges
-```
-
-### 3.3 Index Table: cluster_metadata
-
-```cql
-CREATE TABLE IF NOT EXISTS cluster_metadata (
-  method TEXT,
-  cluster_id INT,
-  cluster_name TEXT,              -- downtown, airport, residential
-  zone_list LIST<INT>,            -- Zones in this cluster
-  silhouette_score FLOAT,         -- Cluster quality metric
-  num_zones INT,
-  
-  PRIMARY KEY (method, cluster_id)
-);
-```
-
----
-
-## 4. Write Pipeline: Spark → Cassandra
-
-### 4.1 Spark Configuration for Cassandra
+### 4.1 Write Function (Super Simple!)
 
 ```python
-# src/data/cassandra_writer.py
+# scripts/write_method2_to_mongodb.py
 
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, from_unixtime, unix_timestamp, lit
+from pymongo import MongoClient
+from datetime import datetime
+import os
 
-def create_spark_cassandra_config():
-    """Create Spark config for Cassandra connection"""
-    return {
-        "spark.cassandra.connection.host": "localhost",
-        "spark.cassandra.connection.port": "9042",
-        "spark.cassandra.connection.keep_alive_ms": "5000",
-        
-        # Read/Write optimization
-        "spark.cassandra.input.split.size_in_mb": "64",
-        "spark.cassandra.output.batch.grouping.key": "partition",
-        "spark.cassandra.output.concurrent.writes": "5",
-        
-        # Consistency level for writes
-        "spark.cassandra.output.consistency.level": "QUORUM",  # Write to majority
-    }
-
-def get_spark_session():
-    """Get Spark session with Cassandra connector"""
-    
-    spark = SparkSession.builder \
-        .appName("Taxi-Cassandra-Pipeline") \
-        .config("spark.jars.packages", 
-                "com.datastax.spark:spark-cassandra-connector_2.12:3.1.0") \
-        .getOrCreate()
-    
-    for key, value in create_spark_cassandra_config().items():
-        spark.conf.set(key, value)
-    
-    return spark
-```
-
-### 4.2 Write Function: Method 2 Features to Cassandra
-
-```python
-# scripts/write_method2_to_cassandra.py
-
-from pyspark.sql.functions import current_timestamp, lit, unix_timestamp
-from src.data.cassandra_writer import get_spark_session
-
-def write_method2_features_to_cassandra(
-    df_features,  # DataFrame with method2 features
-    df_clusters,  # DataFrame with cluster assignments
+def write_method2_features_to_mongodb(
+    df_features,    # [zone_id, trip_count, avg_fare, ...]
+    df_clusters,    # [zone_id, cluster_id]
     method_name="method2",
-    time_bucket=60,
-    consistency_level="QUORUM"
+    time_bucket=60
 ):
-    """
-    Write Method 2 features to Cassandra.
+    """Write to MongoDB - faster than Cassandra setup!"""
     
-    Args:
-        df_features: [zone_id, trip_count, avg_distance, avg_fare, ...]
-        df_clusters: [zone_id, cluster_id]
-        method_name: "baseline", "method1", "method2", "method3"
-        time_bucket: 15, 30, or 60 minutes
-        consistency_level: ONE, LOCAL_ONE, QUORUM, LOCAL_QUORUM, ALL
+    client = MongoClient(os.getenv('MONGODB_URI'))
+    collection = client['taxi_db']['taxi_demand']
     
-    Consistency Levels:
-        ONE: Write succeeds if 1 node acknowledges (fast, risky)
-        QUORUM: Write succeeds if majority nodes ack (balanced)
-        ALL: Write succeeds only if all replicas ack (slow, safe)
-    """
-    
-    spark = get_spark_session()
-    
-    # Join features with cluster assignments
-    df_combined = df_features.join(
-        df_clusters,
-        on="zone_id",
-        how="left"
+    # Join data
+    df_combined = df_features.merge(
+        df_clusters[['zone_id', 'cluster_id']],
+        on='zone_id',
+        how='left'
     )
     
-    # Add metadata columns
-    current_time = int(time.time())  # Unix timestamp
+    # Build documents
+    current_time = datetime.utcnow()
+    documents = []
     
-    df_to_write = df_combined.select(
-        lit(method_name).alias("method"),
-        lit(time_bucket).alias("time_bucket"),
-        col("cluster_id"),
-        lit(current_time).alias("timestamp"),  # Current write timestamp
-        col("zone_id"),
-        
-        # Demand metrics (cast to correct types)
-        col("trip_count").cast("int").alias("demand_count"),
-        col("avg_fare").cast("float").alias("avg_fare"),
-        col("avg_distance").cast("float").alias("avg_distance"),
-        col("avg_passenger_count").cast("float").alias("avg_passenger_count"),
-        col("avg_trip_duration").cast("int").alias("avg_trip_duration"),
-        col("sum_fare").cast("double").alias("sum_fare"),
-        
-        # Metadata
-        from_unixtime(lit(current_time), "yyyy-MM-dd").alias("record_date"),
-        current_timestamp().alias("created_at")
-    )
+    for _, row in df_combined.iterrows():
+        doc = {
+            "timestamp": current_time,
+            "metadata": {
+                "method": method_name,
+                "time_bucket": time_bucket,
+                "cluster_id": int(row['cluster_id']),
+                "zone_id": int(row['zone_id'])
+            },
+            "measurements": {
+                "demand_count": int(row['trip_count']),
+                "avg_fare": float(row['avg_fare']),
+                "avg_distance": float(row['avg_distance']),
+                "avg_passenger_count": float(row['avg_passenger_count']),
+                "avg_trip_duration": int(row['avg_trip_duration']),
+                "sum_fare": float(row['sum_fare'])
+            },
+            "created_at": current_time
+        }
+        documents.append(doc)
     
-    # Write to Cassandra
-    df_to_write.write \
-        .format("org.apache.spark.sql.cassandra") \
-        .mode("append") \
-        .option("keyspace", "taxi_db") \
-        .option("table", "taxi_demand") \
-        .option("spark.cassandra.output.consistency.level", consistency_level) \
-        .save()
+    # Bulk insert
+    if documents:
+        result = collection.insert_many(documents)
+        print(f"✅ Inserted {len(result.inserted_ids)} records to MongoDB")
+        return {"records_written": len(result.inserted_ids), "timestamp": current_time.isoformat()}
     
-    print(f"✅ Written {df_to_write.count()} records to Cassandra")
-    print(f"   Method: {method_name}, Time Bucket: {time_bucket}min, Consistency: {consistency_level}")
-    
-    # Log write statistics
-    return {
-        "method": method_name,
-        "time_bucket": time_bucket,
-        "records_written": df_to_write.count(),
-        "consistency": consistency_level,
-        "timestamp": current_time
-    }
+    client.close()
 ```
 
 ---
 
-## 5. Read Pipeline: Cassandra → Analysis
+## 5. Read Pipeline: MongoDB → Analysis
 
-### 5.1 Read with Different Consistency Levels
+### 5.1 Read Functions
 
 ```python
-# src/data/cassandra_reader.py
+# src/data/mongodb_reader.py
+
+from pymongo import MongoClient
+from datetime import datetime
+import os
 
 def read_taxi_demand_by_timerange(
     method_name,
     time_bucket,
     cluster_id,
-    start_time,  # Unix timestamp
+    start_time,
     end_time,
-    consistency_level="LOCAL_ONE"
+    read_preference="primary"
 ):
-    """
-    Read taxi demand data from Cassandra for time range.
+    """Read from MongoDB"""
     
-    Consistency Levels:
-        LOCAL_ONE: Read from nearest replica (fast, may be stale)
-        QUORUM: Read from majority (balanced)
-        ALL: Read from all replicas, compare for conflicts (slow, fresh)
-    """
+    client = MongoClient(os.getenv('MONGODB_URI'))
+    collection = client['taxi_db']['taxi_demand']
     
-    spark = get_spark_session()
-    
-    # Cassandra allows push-down filtering on clustering keys
-    query = f"""
-    SELECT *
-    FROM taxi_db.taxi_demand
-    WHERE method = '{method_name}'
-    AND time_bucket = {time_bucket}
-    AND cluster_id = {cluster_id}
-    AND timestamp >= {start_time}
-    AND timestamp <= {end_time}
-    """
-    
-    df = spark.read \
-        .format("org.apache.spark.sql.cassandra") \
-        .option("keyspace", "taxi_db") \
-        .option("table", "taxi_demand") \
-        .option("spark.cassandra.input.consistency.level", consistency_level) \
-        .load() \
-        .filter(col("timestamp").between(start_time, end_time))
-    
-    return df
-
-def read_cluster_statistics(method_name, consistency_level="LOCAL_QUORUM"):
-    """Read cluster metadata"""
-    
-    spark = get_spark_session()
-    
-    df = spark.read \
-        .format("org.apache.spark.sql.cassandra") \
-        .option("keyspace", "taxi_db") \
-        .option("table", "cluster_metadata") \
-        .option("spark.cassandra.input.consistency.level", consistency_level) \
-        .load() \
-        .filter(col("method") == method_name)
-    
-    return df
-```
-
----
-
-## 6. Distributed System Analysis
-
-### 6.1 Partition Distribution
-
-```
-Cassandra Consistent Hashing:
-
-Partition Key: (method, time_bucket, cluster_id)
-Hash Value Range: [0, 2^127 - 1]
-
-Token Ring (for 3 nodes):
-  Node 1: Token range [0, 4294967296)
-  Node 2: Token range [4294967296, 8589934592)
-  Node 3: Token range [8589934592, 12884901888)
-
-Data Distribution:
-  method1_15_0 → hash = 1234567 → Node 1 + replicas on Node 2, 3
-  method1_15_1 → hash = 9876543 → Node 2 + replicas on Node 3, 1
-  method1_15_2 → hash = 5555555 → Node 3 + replicas on Node 1, 2
-  
-  ✅ Even distribution (no hotspots)
-  ✅ Replication factor 3 = all data on all nodes (for small datasets)
-```
-
-### 6.2 Fault Tolerance Testing
-
-```python
-# scripts/test_cassandra_fault_tolerance.py
-
-def test_write_with_node_failure():
-    """Simulate write during node failure"""
-    
-    # Before failure: 3 nodes, RF=3 (all healthy)
-    write_consistency = "QUORUM"  # Needs 2 acks out of 3
-    
-    # Scenario: Kill node 1
-    # docker stop cassandra-node-1
-    
-    # Now: 2 nodes active
-    # QUORUM write still succeeds (needs 2/3 acks, have 2/3)
-    
-    # Write data
-    write_method2_features_to_cassandra(
-        df_features, df_clusters,
-        consistency_level="QUORUM"
-    )
-    # ✅ Still succeeds!
-    
-    # Scenario: Kill node 2 as well
-    # docker stop cassandra-node-2
-    
-    # Now: 1 node active
-    # QUORUM write FAILS (needs 2/3 acks, have 1/3)
-    # But data is still readable from 1 node!
-    
-    # Read with LOCAL_ONE
-    df = read_taxi_demand_by_timerange(
-        "method2", 60, 0, start_time, end_time,
-        consistency_level="LOCAL_ONE"
-    )
-    # ✅ Still succeeds from remaining node!
-    
-    # Restart nodes
-    # docker start cassandra-node-1 cassandra-node-2
-    
-    # Hinted handoff + read repair automatically sync data back
-    print("✅ High availability verified: system survives 2/3 node failures")
-```
-
-### 6.3 Consistency vs Availability Trade-off
-
-```python
-# Experiments for thesis
-
-def analyze_consistency_performance():
-    """Compare write latency vs consistency level"""
-    
-    consistency_levels = ["ONE", "LOCAL_ONE", "LOCAL_QUORUM", "QUORUM", "ALL"]
-    write_latencies = []
-    
-    for consistency in consistency_levels:
-        start = time.time()
-        
-        write_method2_features_to_cassandra(
-            df_features, df_clusters,
-            consistency_level=consistency
-        )
-        
-        latency = time.time() - start
-        write_latencies.append({
-            "consistency": consistency,
-            "write_latency_ms": latency * 1000,
-            "description": get_consistency_description(consistency)
-        })
-    
-    # Results show trade-off:
-    # ONE: ~5ms (fastest, least safe)
-    # LOCAL_ONE: ~10ms
-    # LOCAL_QUORUM: ~25ms (balanced)
-    # QUORUM: ~40ms
-    # ALL: ~100ms (slowest, most safe)
-    
-    return write_latencies
-
-def get_consistency_description(level):
-    descriptions = {
-        "ONE": "1 node ack (fast, risky for failure)",
-        "LOCAL_ONE": "1 local DC node ack (slightly safer)",
-        "LOCAL_QUORUM": "Majority in local DC (balanced)",
-        "QUORUM": "Majority across all DCs (safe)",
-        "ALL": "All replicas ack (safest, slowest)"
+    query = {
+        "timestamp": {"$gte": start_time, "$lte": end_time},
+        "metadata.method": method_name,
+        "metadata.time_bucket": time_bucket,
+        "metadata.cluster_id": cluster_id
     }
-    return descriptions.get(level, "Unknown")
+    
+    results = list(collection.find(query).sort("timestamp", -1))
+    client.close()
+    return results
+
+
+def read_cluster_metadata(method_name):
+    """Read cluster info"""
+    
+    client = MongoClient(os.getenv('MONGODB_URI'))
+    collection = client['taxi_db']['cluster_metadata']
+    
+    results = list(collection.find({"method": method_name}))
+    client.close()
+    return results
 ```
 
----
-
-## 7. Performance Monitoring
-
-### 7.1 Cassandra Metrics
-
-```bash
-# Check cluster status
-docker exec cassandra-node-1 nodetool status
-
-# Check read/write latency
-docker exec cassandra-node-1 nodetool cfstats taxi_db.taxi_demand
-
-# Watch real-time metrics
-docker exec cassandra-node-1 nodetool tpstats
-
-# Check data distribution
-docker exec cassandra-node-1 nodetool ring taxi_db
-```
-
-### 7.2 Python Monitoring
+### 5.2 Aggregation Pipeline (Fast Queries)
 
 ```python
-# src/monitoring/cassandra_metrics.py
-
-from cassandra.cluster import Cluster
-from cassandra.metrics import Metrics
-
-def get_cassandra_metrics(contact_points=['localhost']):
-    """Get detailed Cassandra metrics"""
+def aggregate_demand_by_hour(method_name, start_date, end_date):
+    """Aggregate using MongoDB pipeline (server-side)"""
     
-    cluster = Cluster(contact_points=contact_points)
-    session = cluster.connect()
+    client = MongoClient(os.getenv('MONGODB_URI'))
+    collection = client['taxi_db']['taxi_demand']
     
-    # Get read/write statistics
-    rows = session.execute("""
-        SELECT keyspace_name, table_name, 
-               local_read_latency_ms, local_write_latency_ms,
-               pending_tasks, dropped_mutations
-        FROM system.system_virtual_schema_tables
-        WHERE keyspace_name = 'taxi_db'
-    """)
+    pipeline = [
+        {"$match": {
+            "metadata.method": method_name,
+            "timestamp": {"$gte": start_date, "$lt": end_date}
+        }},
+        {"$group": {
+            "_id": {
+                "year": {"$year": "$timestamp"},
+                "month": {"$month": "$timestamp"},
+                "day": {"$dayOfMonth": "$timestamp"},
+                "hour": {"$hour": "$timestamp"}
+            },
+            "total_demand": {"$sum": "$measurements.demand_count"},
+            "avg_fare": {"$avg": "$measurements.avg_fare"},
+            "count": {"$sum": 1}
+        }},
+        {"$sort": {"_id": -1}}
+    ]
     
-    metrics = {}
-    for row in rows:
-        metrics[f"{row.keyspace_name}.{row.table_name}"] = {
-            "read_latency_ms": row.local_read_latency_ms,
-            "write_latency_ms": row.local_write_latency_ms,
-            "pending_tasks": row.pending_tasks,
-            "dropped_mutations": row.dropped_mutations
-        }
-    
-    return metrics
+    results = list(collection.aggregate(pipeline))
+    client.close()
+    return results
 ```
 
 ---
 
-## 8. Thesis Topics: Distributed Database Module
+## 6. Distributed Systems Analysis
 
-### 8.1 Report Structure (20-30 pages)
-
-**Part 1: Architecture & Design (7 pages)**
-- Cassandra architecture: ring topology, consistent hashing
-- Replication strategy: RF=3, replication path
-- Partition design: why (method, time_bucket, cluster_id)?
-- Clustering order: why DESC on timestamp?
-
-**Part 2: Distributed System Properties (8 pages)**
-- CAP Theorem: why AP for this use case?
-- Consistency models: eventual vs strong
-- Replication & fault tolerance
-- Write path: coordinator → nodes
-- Read path: quorum consistency
-
-**Part 3: Performance & Scalability (8 pages)**
-- Write throughput: millions of events/day
-- Read latency: time-range queries
-- Consistency level trade-offs
-- Horizontal scaling: adding nodes
-- Comparison: single-node vs 3-node
-
-**Part 4: Fault Tolerance & Recovery (5 pages)**
-- Node failure scenarios
-- Hinted handoff & repair
-- Data consistency after failures
-- TTL & data compaction
-- Disaster recovery
-
-### 8.2 Experiments for Thesis
-
-```
-Experiment 1: Write Throughput
-- Vary replication factor: 1, 2, 3
-- Measure: writes/second
-- Result: RF=3 reduces throughput ~30% but enables HA
-
-Experiment 2: Fault Tolerance
-- Kill nodes 1 at a time
-- Measure: write/read availability
-- Result: 2 node failures acceptable with RF=3
-
-Experiment 3: Consistency Levels
-- Compare ONE vs QUORUM vs ALL
-- Measure: write latency, data safety
-- Result: QUORUM good balance
-
-Experiment 4: Read Latency vs Time Range
-- Query different time ranges: 1 day, 1 week, 1 month
-- Measure: query time
-- Result: clustering order (DESC) crucial for performance
-```
-
----
-
-## 9. Integration with ML Pipeline
-
-### 9.1 Training Data Source
+### 6.1 Multi-Region Failover Testing
 
 ```python
-# During model training
+# scripts/test_mongodb_failover.py
 
-# Option A: Read from Cassandra with consistency
-def load_train_data_cassandra(method_name, consistency="LOCAL_ONE"):
-    df = read_taxi_demand_by_timerange(
+from pymongo import MongoClient
+from datetime import datetime
+import os
+
+def test_replica_set_failover():
+    """Test automatic failover in MongoDB replica set"""
+    
+    client = MongoClient(os.getenv('MONGODB_URI'))
+    collection = client['taxi_db']['taxi_demand']
+    
+    print("Testing MongoDB Replica Set Failover...")
+    print("1. Insert test document...")
+    
+    test_doc = {
+        "timestamp": datetime.utcnow(),
+        "test": "failover_test",
+        "metadata": {"method": "test"}
+    }
+    
+    result = collection.insert_one(test_doc)
+    print(f"   ✓ Document inserted")
+    
+    print("\n2. Reading with different preferences...")
+    
+    # PRIMARY: always fresh data
+    client.read_preference = "primary"
+    doc = collection.find_one({"_id": result.inserted_id})
+    print(f"   ✓ PRIMARY read succeeded")
+    
+    # SECONDARY: may be stale, available even if PRIMARY is down
+    client.read_preference = "secondary"
+    doc = collection.find_one({"_id": result.inserted_id})
+    print(f"   ✓ SECONDARY read succeeded (may be 1-5s stale)")
+    
+    # Clean up
+    collection.delete_one({"_id": result.inserted_id})
+    client.close()
+    
+    print("\n✅ Failover test complete")
+```
+
+### 6.2 Performance Benchmarks
+
+```python
+def benchmark_mongodb(num_documents=10000):
+    """Benchmark write/read performance"""
+    
+    import time
+    client = MongoClient(os.getenv('MONGODB_URI'))
+    collection = client['taxi_db']['taxi_demand']
+    
+    # Write benchmark
+    docs = [{"timestamp": datetime.utcnow(), "value": i} for i in range(num_documents)]
+    
+    start = time.time()
+    collection.insert_many(docs)
+    write_time = time.time() - start
+    
+    print(f"Write Performance: {num_documents / write_time:.0f} docs/sec")
+    
+    # Read benchmark
+    start = time.time()
+    list(collection.find({"timestamp": {"$gte": datetime.utcnow()}}).limit(1000))
+    read_time = time.time() - start
+    
+    print(f"Read Performance: {1000 / read_time:.0f} docs/sec")
+    
+    collection.delete_many({"timestamp": {"$exists": True}})
+    client.close()
+```
+
+---
+
+## 7. Quick Comparison: Cassandra vs MongoDB Atlas
+
+| Aspect | Cassandra (Docker) | MongoDB Atlas | ⭐ Winner |
+|--------|-------------------|---------------|----------|
+| **Setup Time** | 45-60 min | 5 min | 🏃 **Atlas** |
+| **Infrastructure** | Docker + 3 nodes | Fully managed | 🏃 **Atlas** |
+| **High Availability** | Manual config | Automatic | 🏃 **Atlas** |
+| **Time-Series Support** | Schema tricks | Native | ⭐ **Atlas** |
+| **Cost** | Free (Docker) | Free tier or $57/mo | ⭐ **Tie** |
+| **Learning Curve** | Steep | Shallow | 🏃 **Atlas** |
+| **For 1-week deadline** | ❌ Too much setup | ✅✅ **Ready NOW** | 🏃 **Atlas** |
+
+---
+
+## 8. Thesis Topics: Cloud Database Module
+
+**Focus:** Distributed systems concepts without infrastructure overhead
+
+### 8.1 Replica Set Architecture (Thesis Material)
+
+```
+MongoDB Replica Set (3 nodes):
+
+  PRIMARY → replicates to → SECONDARY 1
+           ├──────────────→ SECONDARY 2
+  
+Write Flow:
+  1. Client writes to PRIMARY
+  2. PRIMARY acknowledges to client
+  3. PRIMARY replicates to SECONDARYs in background
+  4. SECONDARYs acknowledge replication
+
+Read Flow (read_preference = primary):
+  1. Client reads from PRIMARY → always fresh
+  
+Read Flow (read_preference = secondary):
+  1. Client reads from SECONDARY → faster, ~1-5s stale
+
+Failover Flow:
+  1. If PRIMARY dies → Heartbeat fails
+  2. SECONDARYs detect failure (10 seconds)
+  3. SECONDARYs elect new PRIMARY via voting
+  4. New PRIMARY starts accepting writes
+  ✅ Automatic, no manual intervention!
+```
+
+### 8.2 CAP Theorem in Practice
+
+```
+Your Experiments:
+
+1. Consistency Experiment
+   - Write to PRIMARY with w:"majority"
+   - Kill SECONDARY nodes
+   - Verify write still succeeds (quorum)
+   
+2. Availability Experiment  
+   - Kill PRIMARY node
+   - Measure failover time (~10 seconds)
+   - Verify reads available on SECONDARY
+   
+3. Partition Tolerance Experiment
+   - Network partition: PRIMARY vs SECONDARY networks
+   - PRIMARY can't reach SECONDARY
+   - Monitor: write succeeds on PRIMARY (CP behavior)
+   - Monitor: read fails on SECONDARY side
+
+Result: MongoDB is CP (Consistency + Partition Tolerance)
+  - Not fully Available during partitions
+  - But automatic failover is fast
+```
+
+---
+
+## 9. Integration with ML Training
+
+```python
+# Simple data loading
+
+def load_train_data(method_name):
+    """Load data for model training"""
+    
+    results = read_taxi_demand_by_timerange(
         method_name, 60, 0,
-        start_time=unix_timestamp("2023-01-01"),
-        end_time=unix_timestamp("2023-11-01"),
-        consistency_level=consistency
+        start_time=datetime(2023, 1, 1),
+        end_time=datetime(2023, 11, 1),
+        read_preference="primary"  # Always fresh for training
     )
-    return df.to_pandas()
-
-# Option B: Read from Cassandra or Parquet (fallback)
-def load_train_data_hybrid(method_name):
-    try:
-        # Try Cassandra first (distributed)
-        df = load_train_data_cassandra(method_name)
-    except Exception as e:
-        print(f"Cassandra read failed: {e}, falling back to Parquet")
-        # Fall back to Parquet
-        df = load_train_data_parquet(method_name)
+    
+    # Convert to DataFrame
+    df = pd.DataFrame([
+        {
+            "cluster_id": r["metadata"]["cluster_id"],
+            "timestamp": r["timestamp"],
+            **r["measurements"]
+        }
+        for r in results
+    ])
     
     return df
 ```
@@ -707,76 +508,44 @@ def load_train_data_hybrid(method_name):
 ## 10. Quick Commands
 
 ```bash
-# Start cluster
-docker-compose -f docker/docker-compose.yml up -d
-
-# Connect to CQL
-docker exec -it cassandra-node-1 cqlsh
+# Verify connection
+python scripts/test_mongodb_connection.py
 
 # Create schema
-cqlsh> source 'scripts/cassandra_schema.cql'
-
-# Check cluster
-docker exec cassandra-node-1 nodetool status
+python scripts/01_create_mongodb_schema.py
 
 # Write data
-python scripts/write_method2_to_cassandra.py
+python scripts/write_method2_to_mongodb.py
 
-# Read data
-python scripts/read_taxi_demand.py
+# Test failover
+python scripts/test_mongodb_failover.py
 
-# Monitor
-docker exec cassandra-node-1 nodetool tpstats
-
-# Stop cluster
-docker-compose down
+# Benchmark
+python scripts/benchmark_mongodb.py
 ```
 
 ---
 
-## 11. Troubleshooting
+## 11. Why MongoDB Atlas Saves Your Week
 
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Connection timeout | Cassandra not ready | Wait 30s after docker-compose up |
-| QUORUM write fails | <RF/2 nodes alive | Reduce consistency to ONE/LOCAL_ONE |
-| Query slow | Large time range | Use clustering key in WHERE clause |
-| High memory | Default heap too small | Increase in docker-compose env |
-| Data not replicated | RF not set correctly | Check DESCRIBE KEYSPACE |
+```
+Cassandra Approach (NOT HAPPENING):
+  Day 1: Docker setup (1.5 days)
+  Day 2-3: Schema design, CQL
+  Day 4: Debug clustering, replication  
+  Day 5: Fix Spark connector issues
+  = 5 days of infrastructure = NO TIME FOR MODEL TRAINING
+
+MongoDB Atlas Approach (THIS WEEK):
+  Day 1: Create account + cluster (5 min)
+  Day 1: Write schema script (10 min)
+  Day 1: Start training (still Day 1!)
+  Days 2-7: Focus on MODEL QUALITY, not infrastructure
+  = 1 week focused on ML = RESULTS!
+```
+
+✅ **RECOMMENDATION: Use MongoDB Atlas for this project. Ship fast.**
 
 ---
 
-## 12. Prompt Templates for AI
-
-```
-"Implement Cassandra write pipeline for Method [X] features.
- 
- Schema:
- - Table: taxi_demand
- - Partition Key: (method, time_bucket, cluster_id)
- - Clustering Key: timestamp DESC
- - Replication Factor: 3
- 
- Input: DataFrame with columns [zone_id, demand_count, avg_fare, ...]
- Output: Written to Cassandra with QUORUM consistency
- 
- Include: error handling, logging, retry logic"
-
-"Design CQL queries for taxi demand analysis:
- 1. Get demand for cluster X in time range Y-Z
- 2. Get all clusters for method M on date D
- 3. Compare demand across all 4 methods
- 
- Include: indexes, performance hints, consistency levels"
-
-"Analyze CAP theorem trade-offs for taxi system.
- - Why AP (availability + partition tolerance)?
- - What consistency level for different operations?
- - How replication handles node failures?"
-```
-
----
-
-**End of Distributed Database Module Guide**
-
-Next: Update PROJECT_ROADMAP, DEVELOPMENT_SETUP, and EXPERIMENT_REPORTING to include Cassandra integration.
+**End of Distributed Database Module**

@@ -57,7 +57,7 @@
    - Training loop & inference pipeline
 
 7. **EXPERIMENT_TRACKING.md** 📊
-   - MLflow tracking setup
+   - JSON-based tracking setup
    - Metrics collection & logging framework
    - Experiment naming conventions
    - Per-cluster metrics computation
@@ -212,7 +212,7 @@ Key sections:
 Purpose: Define experiment logging, metrics, and comparison
 Use when: Running experiments, tracking results, comparing methods
 Key sections:
-  - MLflow setup & integration
+  - JSON-based tracking setup
   - Metrics collection & logging
   - Naming conventions & tags
   - Comparison framework
@@ -434,7 +434,7 @@ Use this when approaching final deadline:
 - [ ] `.gitignore` properly configured
 
 **Data & Experiments:**
-- [ ] All 12 experiments logged in MLflow (4 methods × 3 time buckets)
+- [ ] All 12 experiments logged to JSON (4 methods × 3 time buckets)
 - [ ] Results exported to CSV (EXPERIMENT_TRACKING.md section 6.1)
 - [ ] Statistical significance tested (section 2.1)
 - [ ] All visualizations saved as high-res PNG (300 DPI)

@@ -48,9 +48,10 @@ class SSTZIPGNNLightning(pl.LightningModule):
         self.val_metrics = {}
         
         # Feature projection: from input features to spatial dimension
-        # Get spatial_dim from model
+        # Get spatial_dim and feature_dim from model
         spatial_dim = model.spatial_dim
-        self.feature_projection = nn.Linear(4, spatial_dim)
+        feature_dim = model.feature_dim
+        self.feature_projection = nn.Linear(feature_dim, spatial_dim)
         
         self.save_hyperparameters(ignore=['model'])
     

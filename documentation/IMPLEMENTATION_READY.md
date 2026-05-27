@@ -92,7 +92,7 @@
 
 #### ✅ **Evaluation & Reporting Guides** (2 files - Enhanced)
 8. **EXPERIMENT_TRACKING.md** (13 KB - New)
-   - MLflow integration setup with code
+   - JSON-based experiment tracking with code
    - Metrics collection framework (6+ metrics)
    - Per-cluster analysis procedures
    - Statistical significance testing (ANOVA + t-tests)
@@ -160,7 +160,7 @@
 ✅ Full PySpark ETL pipeline  
 ✅ Complete PyTorch model architecture  
 ✅ PyTorch Lightning training setup  
-✅ MLflow experiment tracking  
+✅ JSON-based experiment tracking  
 
 ### **5. Data Handling**
 ✅ Input schema (17+ fields)  
@@ -346,7 +346,7 @@ TOTAL                             ~114 KB   ~4,800 lines
 6. **Quality Gates** - Code review, testing, linting procedures included
 7. **Risk Management** - Dependencies, blockers, and mitigations mapped
 8. **Team-Focused** - Communication, Git workflows, conflict resolution
-9. **Evaluation-Ready** - MLflow setup, metrics, statistical testing
+9. **Evaluation-Ready** - JSON tracking, metrics, statistical testing
 10. **Thesis-Structured** - Report outlines ready to use
 
 ---

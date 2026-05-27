@@ -65,7 +65,7 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         val_loader = data_module.val_dataloader()
         test_loader = data_module.test_dataloader()
         
-        print(f"✓ DataLoaders ready")
+        print(f"[OK] DataLoaders ready")
         print(f"  - Train batches: {len(train_loader)}")
         print(f"  - Val batches: {len(val_loader)}")
         print(f"  - Test batches: {len(test_loader)}")
@@ -101,7 +101,7 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         
         model = model.to(device)
         num_params = sum(p.numel() for p in model.parameters())
-        print(f"✓ Model initialized: {num_params:,} parameters")
+        print(f"[OK] Model initialized: {num_params:,} parameters")
         
         # Move adjacency matrix to device
         adj_matrix = adj_matrix.to(device)
@@ -157,7 +157,7 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         
         training_time = (datetime.now() - start_time).total_seconds()
         
-        print(f"\n✓ Training complete in {training_time:.1f} seconds")
+        print(f"\n[OK] Training complete in {training_time:.1f} seconds")
             
         # =========================================================================
         # 6. EVALUATE ON TEST SET
@@ -220,7 +220,7 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
             'Num_Parameters': num_params,
         }
         
-        print(f"\n✓ Test Metrics:")
+        print(f"\n[OK] Test Metrics:")
         print(f"  - MAE:  {mae:.4f}")
         print(f"  - RMSE: {rmse:.4f}")
         print(f"  - MAPE: {mape:.4f}%")
@@ -246,12 +246,12 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         model_path = results_dir / 'model.pt'
         torch.save(model.state_dict(), model_path)
         
-        print(f"✓ Results saved to {results_dir}")
+        print(f"[OK] Results saved to {results_dir}")
         
         return metrics
         
     except Exception as e:
-        print(f"\n❌ Error in experiment {method}: {str(e)}")
+        print(f"\n[ERROR] Error in experiment {method}: {str(e)}")
         traceback.print_exc()
         raise e
 
@@ -313,7 +313,7 @@ def main():
             # Get adjacency matrix from clustering
             print(f"Creating adjacency matrix from {method} clustering...")
             adj_matrix = data_module.adjacency_matrix
-            print(f"✓ Adjacency matrix: {adj_matrix.shape}")
+            print(f"[OK] Adjacency matrix: {adj_matrix.shape}")
             
             # =====================================================================
             # TRAIN EXPERIMENT
@@ -324,11 +324,11 @@ def main():
             print(f"\n✅ {method.upper()} training completed successfully!")
             
         except FileNotFoundError as e:
-            print(f"\n⚠️  Skipping {method}: {str(e)}")
+            print(f"\n[SKIP] Skipping {method}: {str(e)}")
             print("   Make sure clustering results exist in data/models/")
             continue
         except Exception as e:
-            print(f"\n❌ Error training {method}: {str(e)}")
+            print(f"\n[ERROR] Error training {method}: {str(e)}")
             traceback.print_exc()
             continue
     
@@ -348,7 +348,7 @@ def main():
         summary_path = Path("reports/training_summary.csv")
         summary_path.parent.mkdir(parents=True, exist_ok=True)
         df_results.to_csv(summary_path)
-        print(f"\n✓ Summary saved to {summary_path}")
+        print(f"\n[OK] Summary saved to {summary_path}")
         
         # Find best method
         best_method = df_results['MAE'].idxmin()

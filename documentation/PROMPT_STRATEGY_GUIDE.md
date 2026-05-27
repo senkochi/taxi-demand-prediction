@@ -139,7 +139,7 @@ Attach:
 Expected: 
   - Complete PySpark script (100-150 lines)
   - Docstring with parameters
-  - MLflow logging ready
+  - JSON export ready
 ```
 
 #### Pattern 4: Model Architecture
@@ -191,7 +191,7 @@ Cần:
 3. Callbacks:
    - EarlyStopping (monitor val_loss, patience=15)
    - ModelCheckpoint (save best 3 models)
-   - MLflow logger (log params, metrics, models)
+   - JSON logger (dump metrics per epoch)
 
 4. Configure optimizer:
    - Adam (lr=0.001)
@@ -204,7 +204,7 @@ Cần handle:
 
 Attach:
   - MODULE_DEEP_LEARNING_MODELING.md (section 6: Training Loop)
-  - EXPERIMENT_TRACKING.md (section 2.2: MLflow Integration)
+  - EXPERIMENT_TRACKING.md (section 2: JSON-Based Tracking)
 
 Expected:
   - Complete PyTorch Lightning trainer (150-200 lines)

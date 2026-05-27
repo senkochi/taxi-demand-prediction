@@ -195,133 +195,72 @@ docker-compose -f docker/docker-compose.yml up -d
 docker-compose exec app python scripts/01_data_ingestion.py
 ```
 
-### 2.3.5 Cassandra Docker Setup (Local Development)
+### 2.3.5 MongoDB Atlas Setup (Cloud - Fast Setup)
 
-**Why Local Docker for Cassandra?**
-- Eliminates AWS cost/complexity concerns
-- Easy to simulate fault tolerance (kill/restart containers)
-- 3-node local cluster sufficient for testing distributed system concepts
-- Mirrors production topology locally
+**Why MongoDB Atlas?**
+- ✅ Zero infrastructure setup (fully managed)
+- ✅ Built-in multi-region failover
+- ✅ Automatic backups & recovery
+- ✅ No Docker complexity - just 5 min setup
+- ✅ Free tier available for development
+- ✅ Perfect for time-constrained projects
 
-**Quick Start:**
+**Quick Start (5 minutes):**
 
-```bash
-# Start Cassandra 3-node cluster
-docker-compose -f docker/docker-compose.yml up -d cassandra-1 cassandra-2 cassandra-3
+1. **Create free MongoDB Atlas cluster:**
+   ```
+   Go to: https://www.mongodb.com/cloud/atlas
+   Sign up → Create Organization → Create Project → Build Database
+   Choose "Shared" tier (free) → Select cloud provider (AWS/GCP/Azure)
+   Create cluster → Wait for provisioning (~5 min)
+   ```
 
-# Wait for cluster stabilization (30 seconds)
-sleep 30
+2. **Get connection string:**
+   ```
+   In Atlas UI: Database → Connect → Copy connection string
+   Format: mongodb+srv://<username>:<password>@<cluster>.mongodb.net/taxi_db?retryWrites=true&w=majority
+   ```
 
-# Verify cluster health
-docker exec cassandra-node-1 nodetool status
+3. **Store connection in `.env`:**
+   ```bash
+   # .env
+   MONGODB_URI=mongodb+srv://YOUR_USERNAME:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/taxi_db?retryWrites=true&w=majority
+   ```
 
-# Expected output (all UN = Up Normal):
-# UN  172.19.0.2   104.5 KB   256     33.3%
-# UN  172.19.0.3   108.3 KB   256     33.3%
-# UN  172.19.0.4   102.1 KB   256     33.3%
+4. **Test connection from Python:**
+   ```bash
+   python scripts/test_mongodb_connection.py
+   ```
 
-# Connect to CQL shell
-docker exec -it cassandra-node-1 cqlsh
-
-# Inside cqlsh:
-# CREATE KEYSPACE taxi_db WITH replication = {'class': 'SimpleStrategy', 'replication_factor': 3};
-# USE taxi_db;
-# [create tables from MODULE_DISTRIBUTED_DATABASE.md Section 3]
-```
-
-**Docker Compose Cassandra Section:**
-
-```yaml
-# docker/docker-compose.yml - Add this section
-
-version: '3.9'
-
-services:
-  cassandra-1:
-    image: cassandra:4.0
-    container_name: cassandra-node-1
-    environment:
-      CASSANDRA_CLUSTER_NAME: "taxi-cluster"
-      CASSANDRA_DC: "us-east-1"
-      CASSANDRA_RACK: "rack1"
-      CASSANDRA_SEEDS: "cassandra-1"
-    ports:
-      - "9042:9042"
-    volumes:
-      - cassandra-1-data:/var/lib/cassandra
-    networks:
-      - taxi-network
-    healthcheck:
-      test: ["CMD", "cqlsh", "-e", "SELECT 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  cassandra-2:
-    image: cassandra:4.0
-    container_name: cassandra-node-2
-    environment:
-      CASSANDRA_CLUSTER_NAME: "taxi-cluster"
-      CASSANDRA_DC: "us-east-1"
-      CASSANDRA_RACK: "rack1"
-      CASSANDRA_SEEDS: "cassandra-1"
-    depends_on:
-      cassandra-1:
-        condition: service_healthy
-    volumes:
-      - cassandra-2-data:/var/lib/cassandra
-    networks:
-      - taxi-network
-
-  cassandra-3:
-    image: cassandra:4.0
-    container_name: cassandra-node-3
-    environment:
-      CASSANDRA_CLUSTER_NAME: "taxi-cluster"
-      CASSANDRA_DC: "us-east-1"
-      CASSANDRA_RACK: "rack2"
-      CASSANDRA_SEEDS: "cassandra-1"
-    depends_on:
-      cassandra-1:
-        condition: service_healthy
-    volumes:
-      - cassandra-3-data:/var/lib/cassandra
-    networks:
-      - taxi-network
-
-volumes:
-  cassandra-1-data:
-  cassandra-2-data:
-  cassandra-3-data:
-
-networks:
-  taxi-network:
-    driver: bridge
-```
-
-**Cassandra Python Dependencies:**
+**MongoDB Python Dependencies:**
 
 Add to `requirements.txt`:
 ```txt
-cassandra-driver==3.25.0
-pyspark-cassandra==1.0.0
+pymongo==4.6.0
+python-dotenv==1.0.0
 ```
 
-**Verify Cassandra Connection from Python:**
+**Verify MongoDB Connection from Python:**
 
 ```python
-# scripts/test_cassandra_connection.py
-from cassandra.cluster import Cluster
+# scripts/test_mongodb_connection.py
+from pymongo import MongoClient
+import os
 
-def test_cassandra():
-    cluster = Cluster(['localhost'])  # 9042 is default port
-    session = cluster.connect()
+def test_mongodb():
+    client = MongoClient(os.getenv('MONGODB_URI'))
+    db = client['taxi_db']
     
-    rows = session.execute("SELECT release_version FROM system.local")
-    print(f"Cassandra version: {rows[0].release_version}")
+    # Simple health check
+    info = db.command('serverStatus')
+    print(f"✓ MongoDB Connected")
+    print(f"  Version: {info['version']}")
+    print(f"  Uptime: {info['uptime']} seconds")
     
-    session.shutdown()
-    cluster.shutdown()
+    client.close()
+
+if __name__ == "__main__":
+    test_mongodb()
 
 if __name__ == "__main__":
     test_cassandra()
@@ -388,9 +327,8 @@ flake8==6.0.0
 isort==5.12.0
 mypy==1.0.0
 
-# Logging & Monitoring
-mlflow==2.2.0
-wandb==0.15.0
+# Monitoring (JSON-based experiment tracking)
+tensorboard==2.12.0
 ```
 
 ### 3.2 Conda Environment (for Spark compatibility)
@@ -640,9 +578,8 @@ python scripts/run_pipeline.py --methods all --time-buckets 15 30 60
 # Watch logs in real-time
 tail -f logs/pipeline_$(date +%Y%m%d).log
 
-# Use MLflow UI
-mlflow ui --host localhost --port 5000
-# Then visit http://localhost:5000
+# View experiment results (JSON-based)
+cat logs/experiment_results.json | python -m json.tool
 ```
 
 ---

@@ -85,10 +85,13 @@ def compute_per_cluster_metrics(y_true, y_pred, cluster_ids, method_name):
     
     return results
 
-# Log to MLflow
+    return results
+
+# Save to JSON
 per_cluster = compute_per_cluster_metrics(y_test, y_pred_test, cluster_assignments, "method2")
-for cluster_name, metrics in per_cluster.items():
-    mlflow.log_metrics({f"{cluster_name}_{k}": v for k, v in metrics.items()})
+with open("logs/method2_per_cluster_results.json", "w") as f:
+    json.dump(per_cluster, f, indent=2)
+```
 ```
 
 ### 1.3 Computational Efficiency Metrics
@@ -466,7 +469,7 @@ def plot_predictions_timeseries(y_true, y_pred, cluster_id=0, time_bucket=60):
 ## 6. Final Checklist Before Submission
 
 **Week 8 Final Review:**
-- [ ] All 12 experiments completed & results logged (MLflow)
+- [ ] All 12 experiments completed & results logged (JSON)
 - [ ] Comparison table generated & validated
 - [ ] Statistical significance testing done
 - [ ] Visualizations created (high resolution, publication-ready)
@@ -887,5 +890,5 @@ def test_write_during_failure(session):
 **Supporting Materials:**
 - Code repository (documented, tested)
 - Presentation slides (20-25 min)
-- Experimental logs (MLflow + notebooks)
+- Experimental logs (JSON + notebooks)
 - README with reproduction instructions

@@ -1,6 +1,6 @@
 # 📊 Experiment Tracking & Comparison Framework
 
-**Purpose:** Define how to systematically track, log, and compare experiments across 4 clustering methods
+**Purpose:** Define how to systematically track, log, and compare experiments across 4 clustering methods using traditional JSON reporting
 
 **⚠️ IMPORTANT:** This is a project for 2 subjects: **Big Data** and **Distributed Database**
 - Big Data Focus: Log Spark job metrics, feature extraction performance, data quality metrics
@@ -11,153 +11,136 @@
 ## 1. Experiment Tracking Overview
 
 ```
-┌─────────────────────────────────────────────────┐
-│ Experiment 1: Baseline + 15min bucket           │
-│ ├─ Model Checkpoint                              │
-│ ├─ Metrics (MAE, RMSE, etc.)                    │
-│ ├─ Predictions (inference output)               │
-│ ├─ Config (hyperparameters, paths)              │
-│ └─ Metadata (date, duration, notes)             │
-├─────────────────────────────────────────────────┤
-│ Experiment 2: Method 1 + 30min bucket           │
-│ ...                                             │
-├─────────────────────────────────────────────────┤
-│ Experiment 3: Method 2 + 60min bucket           │
-│ ...                                             │
-└─────────────────────────────────────────────────┘
+├─ logs/experiment_results.json          # Master results file (all 12 experiments)
+├─ logs/method1_15min_results.json       # Per-experiment results
+├─ logs/method2_30min_results.json
+├─ logs/method3_60min_results.json
+├─ reports/comparison_table.csv          # Summary comparison
+├─ reports/figures/
+│   ├─ mae_comparison.png
+│   ├─ training_curves.png
+│   └─ cluster_performance.png
+└─ checkpoints/
+    ├─ baseline_15_model.pt
+    ├─ method1_30_model.pt
+    ├─ method2_60_model.pt
+    └─ method3_15_model.pt
 
 Total Experiments: 4 methods × 3 time buckets = 12 base experiments
-+ variations (hyperparameter sweeps, ensemble attempts, etc.)
 ```
 
 ---
 
-## 2. MLflow Setup
+## 2. Traditional JSON-Based Experiment Tracking
 
-### 2.1 MLflow Tracking Server
+### 2.1 Single Experiment Results File
 
-```bash
-# Start MLflow server locally
-mlflow server --host 0.0.0.0 --port 5000
+**File:** `logs/method2_15min_results.json`
 
-# Access UI: http://localhost:5000
+```json
+{
+  "experiment_id": "method2_15_v1_seed42_20240315",
+  "timestamp": "2024-03-15T14:35:22Z",
+  "metadata": {
+    "method": "Method 2: Mobility Clustering",
+    "time_bucket": 15,
+    "model_architecture": "SSTZIP-GNN",
+    "seed": 42,
+    "team_member": "Person A",
+    "status": "completed",
+    "duration_seconds": 3847,
+    "notes": "Optimized feature normalization"
+  },
+  "hyperparameters": {
+    "hidden_dim": 64,
+    "num_layers": 3,
+    "learning_rate": 0.001,
+    "batch_size": 32,
+    "epochs": 100,
+    "k_clusters": 5
+  },
+  "training": {
+    "train_loss_history": [0.95, 0.78, 0.65, ..., 0.45],
+    "val_loss_history": [0.88, 0.71, 0.58, ..., 0.52],
+    "best_epoch": 87,
+    "final_train_loss": 0.45,
+    "final_val_loss": 0.52
+  },
+  "evaluation_metrics": {
+    "MAE": 3.45,
+    "RMSE": 5.67,
+    "MAPE": 0.12,
+    "MASE": 1.23,
+    "Zero_Detection_Rate": 0.89,
+    "Nonzero_Detection_Rate": 0.76,
+    "Sparsity_Difference": 0.08
+  },
+  "per_cluster_metrics": {
+    "cluster_0": {"MAE": 2.1, "RMSE": 3.4, "samples": 150},
+    "cluster_1": {"MAE": 3.8, "RMSE": 6.2, "samples": 120},
+    "cluster_2": {"MAE": 4.2, "RMSE": 7.1, "samples": 90}
+  },
+  "computational_efficiency": {
+    "training_time_seconds": 3600,
+    "training_time_per_epoch": 36,
+    "inference_time_seconds": 12.5,
+    "inference_time_per_sample_ms": 0.45
+  },
+  "artifacts": {
+    "model_checkpoint": "checkpoints/method2_15_model.pt",
+    "predictions_file": "reports/method2_15_predictions.csv",
+    "visualization": "reports/figures/method2_15_results.png"
+  }
+}
 ```
 
-### 2.2 Python Code Integration
+### 2.2 Master Results Summary (All Experiments)
 
-```python
-import mlflow
-from pathlib import Path
+**File:** `logs/experiment_results.json`
 
-# Set tracking URI
-mlflow.set_tracking_uri("http://localhost:5000")
-
-# Create/use experiment
-mlflow.set_experiment("Taxi-Demand-Prediction")
-
-# Log parameters, metrics, artifacts
-with mlflow.start_run(run_name="Method2_15min_v1"):
-    # Parameters
-    mlflow.log_params({
-        "method": "Method 2: Mobility Clustering",
-        "time_bucket": 15,
-        "model": "SSTZIP-GNN",
-        "hidden_dim": 64,
-        "num_layers": 3,
-        "learning_rate": 0.001,
-        "batch_size": 32,
-        "epochs": 100,
-        "k_clusters": 5
-    })
-    
-    # Metrics (logged during training)
-    mlflow.log_metric("train_loss", 0.45, step=1)
-    mlflow.log_metric("val_loss", 0.52, step=1)
+```json
+{
+  "summary": {
+    "total_experiments": 12,
+    "completed": 12,
+    "failed": 0,
+    "timestamp": "2024-03-20T10:15:00Z"
+  },
+  "experiments": [
+    {"id": "baseline_15_v1_seed42", "MAE": 4.12, "RMSE": 6.45, "status": "completed"},
+    {"id": "method1_15_v1_seed42", "MAE": 3.87, "RMSE": 6.12, "status": "completed"},
+    {"id": "method2_15_v1_seed42", "MAE": 3.45, "RMSE": 5.67, "status": "completed"},
     ...
-    
-    # Final metrics
-    mlflow.log_metrics({
-        "MAE": 3.45,
-        "RMSE": 5.67,
-        "MAPE": 0.12,
-        "Zero_Inflation_Score": 0.78
-    })
-    
-    # Artifacts
-    mlflow.log_artifact("reports/method2_results.json")
-    mlflow.pytorch.log_model(model, "model")
+  ],
+  "best_performer": "method2_30_v1_seed42",
+  "best_mae": 2.98
+}
 ```
 
-### 2.3 MLflow Folder Structure
-
-```
-mlruns/
-├── 0/                          # Default experiment
-└── 1/                          # Taxi-Demand-Prediction
-    ├── meta.yaml               # Experiment metadata
-    ├── {run_id_1}/
-    │   ├── meta.yaml           # Run metadata
-    │   ├── metrics/
-    │   │   ├── train_loss
-    │   │   ├── val_loss
-    │   │   ├── MAE
-    │   │   ├── RMSE
-    │   │   └── ...
-    │   ├── params/
-    │   │   ├── method
-    │   │   ├── time_bucket
-    │   │   └── ...
-    │   ├── artifacts/
-    │   │   ├── model/
-    │   │   ├── results.json
-    │   │   └── plots/
-    │   └── tags/
-    │       ├── status
-    │       ├── team_member
-    │       └── notes
-    └── {run_id_2}/
-        └── ...
-```
-
----
-
-## 3. Experiment Naming Convention
-
-### 3.1 Standard Format
+### 2.3 Experiment Naming Convention
 
 ```
 {METHOD}_{TIME_BUCKET}_{VARIANT}_{SEED}_{DATE}
 
 Examples:
-- baseline_15_v1_seed42_20240101
-- method1_30_v2_seed42_20240102
-- method2_60_main_seed42_20240105
-- method3_15_ensemble_seed42_20240110
-```
-
-### 3.2 Run Tags (in MLflow)
-
-```python
-mlflow.set_tags({
-    "method": "Method 2",
-    "time_bucket": 15,
-    "team_member": "Person A",
-    "version": "v1",
-    "status": "completed",  # or "in_progress", "failed"
-    "notes": "Optimized feature normalization"
-})
+- baseline_15_v1_seed42_20240315
+- method1_30_v2_seed42_20240315  
+- method2_60_main_seed42_20240315
+- method3_15_ensemble_seed42_20240315
 ```
 
 ---
 
-## 4. Metrics Collection & Logging
+## 3. Metrics Collection & Logging
 
-### 4.1 Core Metrics
+### 3.1 Core Metrics
 
 **For each model × time_bucket combination:**
 
 ```python
 from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
+import json
+from datetime import datetime
 
 def compute_metrics(y_true, y_pred):
     """Compute evaluation metrics."""
@@ -167,10 +150,9 @@ def compute_metrics(y_true, y_pred):
     mape = mean_absolute_percentage_error(y_true, y_pred)
     
     # Zero-Inflated specific metric
-    # How well the model predicts "no demand" (zero) vs "demand" (non-zero)
     zero_mask = y_true == 0
-    zero_accuracy = (y_pred[zero_mask] < 0.5).mean()  # Predict zeros correctly
-    non_zero_accuracy = (y_pred[~zero_mask] >= 0.5).mean()  # Predict non-zeros correctly
+    zero_accuracy = (y_pred[zero_mask] < 0.5).mean()
+    non_zero_accuracy = (y_pred[~zero_mask] >= 0.5).mean()
     zero_inflation_score = (zero_accuracy + non_zero_accuracy) / 2
     
     return {
@@ -182,12 +164,18 @@ def compute_metrics(y_true, y_pred):
         "Non_Zero_Prediction_Accuracy": non_zero_accuracy
     }
 
-# Log to MLflow
+# Save metrics to JSON
 metrics_dict = compute_metrics(y_test, y_pred_test)
-mlflow.log_metrics(metrics_dict)
+results = {
+    "timestamp": datetime.utcnow().isoformat(),
+    "evaluation_metrics": metrics_dict
+}
+
+with open(f"logs/{method}_{time_bucket}_results.json", "w") as f:
+    json.dump(results, f, indent=2)
 ```
 
-### 4.2 Per-Cluster Metrics
+### 3.2 Per-Cluster Metrics
 
 ```python
 def compute_per_cluster_metrics(y_true, y_pred, cluster_ids):
@@ -199,109 +187,144 @@ def compute_per_cluster_metrics(y_true, y_pred, cluster_ids):
         y_true_c = y_true[mask]
         y_pred_c = y_pred[mask]
         
-        results[f"cluster_{cluster_id}_MAE"] = mean_absolute_error(y_true_c, y_pred_c)
-        results[f"cluster_{cluster_id}_RMSE"] = np.sqrt(mean_squared_error(y_true_c, y_pred_c))
-        results[f"cluster_{cluster_id}_samples"] = len(y_true_c)
+        results[f"cluster_{cluster_id}"] = {
+            "MAE": mean_absolute_error(y_true_c, y_pred_c),
+            "RMSE": np.sqrt(mean_squared_error(y_true_c, y_pred_c)),
+            "samples": len(y_true_c),
+            "mean_demand": y_true_c.mean(),
+            "std_demand": y_true_c.std()
+        }
     
-    mlflow.log_metrics(results)
     return results
 ```
 
-### 4.3 Computational Efficiency Metrics
+### 3.3 Computational Efficiency Metrics
 
 ```python
 import time
+import json
+from datetime import datetime
 
-# Log training time
+# Track training time
 start_time = time.time()
 # ... training loop ...
 training_time = time.time() - start_time
 
-mlflow.log_metrics({
+efficiency_metrics = {
     "training_time_seconds": training_time,
     "training_time_per_epoch": training_time / num_epochs,
     "inference_time_seconds": inference_time,
-    "inference_time_per_sample": inference_time / len(test_data)
-})
+    "inference_time_per_sample_ms": (inference_time * 1000) / len(test_data)
+}
 ```
 
 ---
 
-## 5. Experiment Tracking Template (Python Script)
+## 4. Experiment Tracking Template (Python Script)
+
+**File:** `scripts/08_model_training.py`
 
 ```python
-# scripts/08_model_training.py
-
-import mlflow
 import yaml
+import json
+import time
+from datetime import datetime
 from pathlib import Path
 from src.models import SSTZIP_GNN
 from src.training import Trainer
 
-def run_experiment(method: str, time_bucket: int, version: str = "v1"):
-    """Run a single experiment with MLflow logging."""
+def run_experiment(method: str, time_bucket: int, version: str = "v1", seed: int = 42):
+    """Run a single experiment and save results to JSON."""
     
     # Load configuration
     with open("config/config.yaml") as f:
         config = yaml.safe_load(f)
     
-    # Create experiment run
-    experiment_name = "Taxi-Demand-Prediction"
-    run_name = f"{method}_{time_bucket}_{version}"
+    # Prepare experiment metadata
+    experiment_id = f"{method}_{time_bucket}_{version}_seed{seed}_{datetime.now().strftime('%Y%m%d')}"
+    start_timestamp = datetime.utcnow().isoformat()
+    start_time_sec = time.time()
     
-    with mlflow.start_run(run_name=run_name) as run:
-        try:
-            # 1. Log configuration
-            mlflow.log_params({
-                "method": method,
-                "time_bucket": time_bucket,
-                "model_architecture": config["model"]["architecture"],
-                "hidden_dim": config["model"]["hidden_dim"],
-                "learning_rate": config["model"]["training"]["learning_rate"],
-                "batch_size": config["model"]["training"]["batch_size"],
-                "epochs": config["model"]["training"]["epochs"],
-                "k_clusters": config["clustering"][method.lower().replace(" ", "_")].get("k", "auto")
-            })
-            
-            mlflow.set_tags({
-                "team_member": "Person A",
-                "status": "in_progress"
-            })
-            
-            # 2. Load data
-            print(f"Loading data for {method} (time_bucket={time_bucket}min)...")
-            train_loader, val_loader, test_loader = load_data(method, time_bucket)
-            
-            # 3. Initialize model
-            model = SSTZIP_GNN(
-                in_channels=train_loader.dataset[0][0].shape[-1],
-                hidden_dim=config["model"]["hidden_dim"],
-                num_layers=config["model"]["num_layers"]
-            )
-            
-            # 4. Train model
-            trainer = Trainer(
-                model=model,
-                config=config,
-                mlflow_run_id=run.info.run_id
-            )
-            
-            trainer.train(train_loader, val_loader)
-            
-            # 5. Evaluate on test set
-            metrics = trainer.evaluate(test_loader)
-            mlflow.log_metrics(metrics)
-            
-            # 6. Per-cluster metrics
-            per_cluster_metrics = trainer.evaluate_per_cluster(test_loader)
-            for k, v in per_cluster_metrics.items():
-                mlflow.log_metric(k, v)
-            
-            # 7. Save results
-            results_file = f"reports/results_{method}_{time_bucket}.json"
-            mlflow.log_artifact(results_file)
-            
-            # 8. Save model
+    results = {
+        "experiment_id": experiment_id,
+        "timestamp": start_timestamp,
+        "metadata": {
+            "method": method,
+            "time_bucket": time_bucket,
+            "model_architecture": "SSTZIP-GNN",
+            "seed": seed,
+            "team_member": "Person A",
+            "status": "in_progress"
+        },
+        "hyperparameters": {
+            "hidden_dim": config["model"]["hidden_dim"],
+            "num_layers": config["model"]["num_layers"],
+            "learning_rate": config["model"]["training"]["learning_rate"],
+            "batch_size": config["model"]["training"]["batch_size"],
+            "epochs": config["model"]["training"]["epochs"]
+        }
+    }
+    
+    try:
+        # 1. Load data
+        print(f"Loading data for {method} (time_bucket={time_bucket}min)...")
+        train_loader, val_loader, test_loader = load_data(method, time_bucket)
+        
+        # 2. Initialize model
+        model = SSTZIP_GNN(
+            in_channels=train_loader.dataset[0][0].shape[-1],
+            hidden_dim=config["model"]["hidden_dim"],
+            num_layers=config["model"]["num_layers"]
+        )
+        
+        # 3. Train model
+        trainer = Trainer(model=model, config=config)
+        train_history = trainer.train(train_loader, val_loader)
+        
+        results["training"] = {
+            "train_loss_history": train_history["train_loss"],
+            "val_loss_history": train_history["val_loss"],
+            "best_epoch": train_history["best_epoch"],
+            "final_train_loss": train_history["train_loss"][-1],
+            "final_val_loss": train_history["val_loss"][-1]
+        }
+        
+        # 4. Evaluate on test set
+        metrics = trainer.evaluate(test_loader)
+        results["evaluation_metrics"] = metrics
+        
+        # 5. Per-cluster metrics
+        per_cluster_metrics = trainer.evaluate_per_cluster(test_loader)
+        results["per_cluster_metrics"] = per_cluster_metrics
+        
+        # 6. Computational efficiency
+        elapsed_sec = time.time() - start_time_sec
+        results["computational_efficiency"] = {
+            "training_time_seconds": elapsed_sec,
+            "training_time_per_epoch": elapsed_sec / len(train_history["train_loss"])
+        }
+        
+        # 7. Save model checkpoint
+        checkpoint_path = f"checkpoints/{experiment_id}_model.pt"
+        torch.save(model.state_dict(), checkpoint_path)
+        
+        # 8. Save predictions
+        predictions = trainer.predict(test_loader)
+        predictions_path = f"reports/{experiment_id}_predictions.csv"
+        pd.DataFrame(predictions).to_csv(predictions_path, index=False)
+        
+        # 9. Update results
+        results["artifacts"] = {
+            "model_checkpoint": checkpoint_path,
+            "predictions_file": predictions_path
+        }
+        results["metadata"]["status"] = "completed"
+        results["metadata"]["duration_seconds"] = elapsed_sec
+        
+    except Exception as e:
+        results["metadata"]["status"] = "failed"
+        results["metadata"]["error"] = str(e)
+        print(f"❌ Experiment failed: {e}")
             mlflow.pytorch.log_model(model, artifact_path="model")
             
             # Mark as complete
