@@ -158,13 +158,18 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
         training_time = (datetime.now() - start_time).total_seconds()
         
         print(f"\n[OK] Training complete in {training_time:.1f} seconds")
+
+        # Make sure the evaluation path uses the same device as the trained module
+        trainer_module = trainer_module.to(device)
+        model = trainer_module.model
+        feature_projection = trainer_module.feature_projection
+        model.eval()
+        feature_projection.eval()
             
         # =========================================================================
         # 6. EVALUATE ON TEST SET
         # =========================================================================
         print(f"\n[5/7] Evaluating on test set...")
-        
-        model.eval()
         test_predictions = []
         test_targets = []
         test_zones = []
@@ -185,7 +190,7 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
                     x_batch = x_batch.transpose(1, 2)
                 
                 # Project features to spatial_dim
-                x_proj = trainer_module.feature_projection(x_batch.transpose(1, 2))
+                x_proj = feature_projection(x_batch.transpose(1, 2))
                 x_proj = x_proj.transpose(1, 2)
                 
                 # Forward through temporal encoder
