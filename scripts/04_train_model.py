@@ -130,6 +130,9 @@ def run_experiment(method: str, config: dict, data_module: TaxiDemandDataModule,
             devices=1,
             enable_progress_bar=True,
             log_every_n_steps=10,
+            precision=training_config.get('precision', '32-true'),
+            gradient_clip_val=training_config.get('gradient_clip_val', 1.0),
+            accumulate_grad_batches=training_config.get('accumulate_grad_batches', 1),
             callbacks=[
                 pl.callbacks.EarlyStopping(
                     monitor='val_loss',
@@ -289,7 +292,7 @@ def main():
     # =========================================================================
     print("\n[Data] Initializing data module and loading adjacency matrices...")
     
-    methods = ["baseline", "method1", "method2", "method3"]
+    methods = config.get('clustering', {}).get('methods', ["method1", "method2", "method3"])
     results_summary = {}
     
     for method in methods:
@@ -305,10 +308,10 @@ def main():
                 sequence_length=config.get('model', {}).get('seq_length', 96),
                 forecast_horizon=1,
                 batch_size=config.get('model', {}).get('training', {}).get('batch_size', 32),
-                num_workers=0,  # Set to 0 to avoid DataLoader issues
-                train_ratio=0.70,
-                val_ratio=0.15,
-                test_ratio=0.15
+                num_workers=config.get('model', {}).get('training', {}).get('num_workers', 0),
+                train_ratio=config.get('train_val_test', {}).get('train_ratio', 0.85),
+                val_ratio=config.get('train_val_test', {}).get('val_ratio', 0.08),
+                test_ratio=config.get('train_val_test', {}).get('test_ratio', 0.07)
             )
             
             # Setup data module (load data and create datasets)
@@ -356,9 +359,13 @@ def main():
         print(f"\n[OK] Summary saved to {summary_path}")
         
         # Find best method
-        best_method = df_results['MAE'].idxmin()
-        best_mae = df_results.loc[best_method, 'MAE']
-        print(f"\n🏆 Best Method: {best_method} (MAE: {best_mae:.4f})")
+        valid_results = df_results[df_results['MAE'].notna()]
+        if not valid_results.empty:
+            best_method = valid_results['MAE'].idxmin()
+            best_mae = valid_results.loc[best_method, 'MAE']
+            print(f"\n[OK] Best Method: {best_method} (MAE: {best_mae:.4f})")
+        else:
+            print("\n[WARN] No valid MAE values were produced, so no best method can be selected.")
     else:
         print("❌ No experiments completed successfully!")
     

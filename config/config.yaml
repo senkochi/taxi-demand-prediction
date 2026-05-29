@@ -45,18 +45,22 @@ train_val_test:
 
 model:
   architecture: "SSTZIP-GNN"
-  hidden_dim: 32
-  num_layers: 2
-  dropout: 0.2
+  spatial_dim: 32
+  temporal_dim: 32
+  num_spatial_layers: 1
+  num_spatial_hops: 2
+  num_temporal_layers: 2
+  hidden_dim_zip: 64
+  dropout: 0.1
   
   training:
     batch_size: 128
-    epochs: 30
-    learning_rate: 0.001
-    early_stopping_patience: 10
+    epochs: 10
+    learning_rate: 0.0003
+    early_stopping_patience: 5
     device: "cuda"  # set to 'cuda' when running on GPU (Colab T4)
-    num_workers: 8
-    precision: 16
+    num_workers: 4
+    precision: "32-true"
     gradient_clip_val: 1.0
     accumulate_grad_batches: 1
 
