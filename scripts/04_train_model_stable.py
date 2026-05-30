@@ -346,13 +346,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Stable SSTZIP-GNN training script")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH, help="Path to config/config.yaml")
     parser.add_argument("--smoke-only", action="store_true", help="Run the smoke check and exit")
+    parser.add_argument("--method", help="Run a single clustering method (method1, method2, or method3)")
     parser.add_argument("--methods", nargs="*", help="Optional subset of clustering methods to run")
     args, unknown_args = parser.parse_known_args()
     if unknown_args:
         print(f"[WARN] Ignoring extra arguments: {' '.join(unknown_args)}")
 
     config = load_config(args.config)
-    methods = pick_methods(config, args.methods)
+    requested_methods = [args.method] if args.method else args.methods
+    methods = pick_methods(config, requested_methods)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     print_header("STABLE SSTZIP-GNN TRAINING")
