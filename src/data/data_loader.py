@@ -104,10 +104,19 @@ class TaxiDemandDataset(Dataset):
         for i, col in enumerate(self.feature_cols):
             mean = self.normalization_stats['mean'][col]
             std = self.normalization_stats['std'][col]
+            if not np.isfinite(mean):
+                mean = 0.0
+            if not np.isfinite(std) or std <= 0:
+                std = 1.0
+            if np.isnan(x[:, i]).any() or np.isinf(x[:, i]).any():
+                x[:, i] = np.nan_to_num(x[:, i], nan=mean, posinf=mean, neginf=mean)
             if std > 0:
                 x[:, i] = (x[:, i] - mean) / std
             else:
                 x[:, i] = x[:, i] - mean
+        
+        # Final safety guard against non-finite values
+        x = np.nan_to_num(x, nan=0.0, posinf=0.0, neginf=0.0)
         
         # Get target (demand in next time step)
         target_idx = start_idx + self.sequence_length + self.forecast_horizon - 1
