@@ -347,7 +347,9 @@ def main() -> int:
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH, help="Path to config/config.yaml")
     parser.add_argument("--smoke-only", action="store_true", help="Run the smoke check and exit")
     parser.add_argument("--methods", nargs="*", help="Optional subset of clustering methods to run")
-    args = parser.parse_args()
+    args, unknown_args = parser.parse_known_args()
+    if unknown_args:
+        print(f"[WARN] Ignoring extra arguments: {' '.join(unknown_args)}")
 
     config = load_config(args.config)
     methods = pick_methods(config, args.methods)
