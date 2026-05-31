@@ -360,6 +360,10 @@ data/
 └── train_val_test_split.json
 ```
 
+Implementation note: the training runtime stores clustering artifacts under `data/models/`.
+For the baseline method, `data/models/baseline_clusters.pkl` is created automatically on demand
+as an identity clustering artifact where each zone maps to its own cluster.
+
 ### 7.2 Cluster Metadata
 ```json
 {

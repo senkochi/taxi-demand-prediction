@@ -209,8 +209,39 @@ class TaxiDemandDataModule:
         if os.path.exists(clustering_file):
             with open(clustering_file, 'rb') as f:
                 return pickle.load(f)
+        if self.clustering_method == "baseline":
+            return self._create_baseline_clustering_artifact(clustering_file)
         else:
             raise FileNotFoundError(f"Clustering file not found: {clustering_file}")
+
+    def _create_baseline_clustering_artifact(self, clustering_file: str) -> dict:
+        """Create an identity clustering artifact for the baseline method.
+
+        The baseline model intentionally uses one cluster per zone so the graph
+        adjacency becomes identity-like and does not depend on a separate
+        clustering preprocessing step.
+        """
+        if self.features_df is None:
+            self.features_df = self.load_features()
+
+        zone_ids = sorted(self.features_df['zone_id'].unique().tolist())
+        if not zone_ids:
+            raise RuntimeError("No zones found in baseline features; cannot create baseline clustering artifact")
+
+        zone_to_cluster = {int(zone_id): int(zone_id) for zone_id in zone_ids}
+        artifact = {
+            "zone_to_cluster": zone_to_cluster,
+            "silhouette_score": 0.0,
+            "optimal_k": len(zone_ids),
+            "cluster_centers": [[float(zone_id)] for zone_id in zone_ids],
+        }
+
+        os.makedirs(os.path.dirname(clustering_file), exist_ok=True)
+        with open(clustering_file, 'wb') as f:
+            pickle.dump(artifact, f)
+
+        print(f"Created baseline clustering artifact: {clustering_file}")
+        return artifact
     
     def create_adjacency_matrix(self, clusters: np.ndarray) -> torch.Tensor:
         """

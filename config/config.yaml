@@ -20,7 +20,7 @@ paths:
   reports: "./reports/"
 
 clustering:
-  methods: ["method1", "method2", "method3"]
+  methods: ["baseline", "method1", "method2", "method3"]
   
   method1:
     name: "Demand-Based Clustering"

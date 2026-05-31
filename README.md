@@ -75,13 +75,13 @@ python scripts/01_data_ingestion.py       # Load NYC taxi data
 python scripts/02_data_validation.py      # Data quality checks
 
 # Week 3-5: Clustering Methods
-python scripts/03_method0_baseline.py     # Baseline (zone-based)
+python scripts/train_baseline.py          # Baseline (zone-based, same trainer flow)
 python scripts/04_method1_clustering.py   # Method 1 (demand-based)
 python scripts/05_method2_clustering.py   # Method 2 (mobility patterns) ⭐
 python scripts/06_method3_clustering.py   # Method 3 (OD-flow)
 
 # Week 5-6: Deep Learning
-python scripts/08_model_training.py       # Train SSTZIP-GNN (all 4 methods)
+python scripts/04_train_model_stable.py   # Train SSTZIP-GNN (baseline + methods 1-3)
 
 # Week 7: Evaluation
 python scripts/09_evaluation.py           # Compare results
