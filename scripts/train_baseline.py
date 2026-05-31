@@ -37,6 +37,8 @@ def main() -> int:
     stable.DEFAULT_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
     config = stable.load_config(args.config)
+    # Force baseline to run for 3 epochs regardless of global config
+    config.setdefault("model", {}).setdefault("training", {})["epochs"] = 3
     device = stable.torch.device("cuda" if stable.torch.cuda.is_available() else "cpu")
 
     stable.print_header(f"SINGLE-METHOD TRAINER: {method}")
