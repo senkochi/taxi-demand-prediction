@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pickle
 import sys
 import traceback
@@ -171,6 +172,20 @@ def build_model(config: Dict[str, Any], feature_dim: int, num_zones: int) -> SST
         hidden_dim_zip=model_config.get("hidden_dim_zip", 64),
         dropout=model_config.get("dropout", 0.1),
     )
+
+
+def apply_fast_mode_overrides(config: Dict[str, Any], device: torch.device) -> None:
+    """Apply conservative speed-up defaults for Colab runs."""
+    training_config = config.setdefault("model", {}).setdefault("training", {})
+
+    training_config["epochs"] = min(int(training_config.get("epochs", 10)), 3)
+    training_config["early_stopping_patience"] = min(int(training_config.get("early_stopping_patience", 5)), 2)
+
+    if device.type == "cuda":
+        training_config["precision"] = "16-mixed"
+        training_config["num_workers"] = max(2, min(int(training_config.get("num_workers", 0)), max((os.cpu_count() or 2) - 1, 2)))
+    else:
+        training_config["precision"] = "32-true"
 
 
 def run_smoke_check(config: Dict[str, Any], method: str, device: torch.device) -> tuple[TaxiDemandDataModule, SSTZIPGNNLightning, torch.Tensor, torch.Tensor]:
@@ -348,6 +363,7 @@ def main() -> int:
     parser.add_argument("--smoke-only", action="store_true", help="Run the smoke check and exit")
     parser.add_argument("--method", help="Run a single clustering method (method1, method2, or method3)")
     parser.add_argument("--methods", nargs="*", help="Optional subset of clustering methods to run")
+    parser.add_argument("--fast", action="store_true", help="Apply speed-up defaults for Colab runs")
     args, unknown_args = parser.parse_known_args()
     if unknown_args:
         print(f"[WARN] Ignoring extra arguments: {' '.join(unknown_args)}")
@@ -356,6 +372,9 @@ def main() -> int:
     requested_methods = [args.method] if args.method else args.methods
     methods = pick_methods(config, requested_methods)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    if args.fast:
+        apply_fast_mode_overrides(config, device)
 
     print_header("STABLE SSTZIP-GNN TRAINING")
     print(f"[Env] Device: {device}")

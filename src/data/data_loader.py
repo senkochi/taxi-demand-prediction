@@ -214,6 +214,18 @@ class TaxiDemandDataModule:
         else:
             raise FileNotFoundError(f"Clustering file not found: {clustering_file}")
 
+    def _dataloader_kwargs(self) -> dict:
+        """Shared DataLoader tuning for faster GPU training."""
+        kwargs = {
+            "batch_size": self.batch_size,
+            "num_workers": self.num_workers,
+            "pin_memory": torch.cuda.is_available(),
+        }
+        if self.num_workers > 0:
+            kwargs["persistent_workers"] = True
+            kwargs["prefetch_factor"] = 2
+        return kwargs
+
     def _create_baseline_clustering_artifact(self, clustering_file: str) -> dict:
         """Create an identity clustering artifact for the baseline method.
 
@@ -342,33 +354,15 @@ class TaxiDemandDataModule:
     
     def train_dataloader(self) -> DataLoader:
         """Return training DataLoader"""
-        return DataLoader(
-            self.train_dataset,
-            batch_size=self.batch_size,
-            shuffle=True,
-            num_workers=self.num_workers,
-            pin_memory=torch.cuda.is_available()
-        )
+        return DataLoader(self.train_dataset, shuffle=True, **self._dataloader_kwargs())
     
     def val_dataloader(self) -> DataLoader:
         """Return validation DataLoader"""
-        return DataLoader(
-            self.val_dataset,
-            batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=self.num_workers,
-            pin_memory=torch.cuda.is_available()
-        )
+        return DataLoader(self.val_dataset, shuffle=False, **self._dataloader_kwargs())
     
     def test_dataloader(self) -> DataLoader:
         """Return test DataLoader"""
-        return DataLoader(
-            self.test_dataset,
-            batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=self.num_workers,
-            pin_memory=torch.cuda.is_available()
-        )
+        return DataLoader(self.test_dataset, shuffle=False, **self._dataloader_kwargs())
 
 
 if __name__ == "__main__":
