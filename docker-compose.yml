@@ -1,108 +1,26 @@
-version: '3.8'
-
 services:
-  cassandra-1:
-    image: cassandra:4.1.3
-    container_name: cassandra-1
+  spark-runtime:
+    image: bitnami/spark:3.5.1
+    container_name: taxi-spark-runtime
+    working_dir: /workspace
+    command: ["bash", "-lc", "sleep infinity"]
     environment:
-      CASSANDRA_CLUSTER_NAME: taxi-cluster
-      CASSANDRA_DC: datacenter1
-      CASSANDRA_RACK: rack1
-      CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
-      CASSANDRA_LISTEN_ADDRESS: cassandra-1
-      CASSANDRA_BROADCAST_ADDRESS: cassandra-1
-      CASSANDRA_RPC_ADDRESS: 0.0.0.0
-      MAX_HEAP_SIZE: 256M
-      HEAP_NEWSIZE: 64M
-
-    ports:
-      - "9042:9042"
-
+      - SPARK_MODE=master
+      - SPARK_LOCAL_IP=127.0.0.1
+      - SPARK_MASTER_HOST=spark-runtime
+      - SPARK_DRIVER_BIND_ADDRESS=0.0.0.0
+      - HADOOP_CONF_DIR=/opt/bitnami/spark/conf
+      - PYTHONUNBUFFERED=1
     volumes:
-      - cassandra-1-data:/var/lib/cassandra
-
+      - ./:/workspace
+      - spark-warehouse:/tmp/spark-warehouse
+    ports:
+      - "4040:4040"
     networks:
       - taxi-network
-
-    healthcheck:
-      test: ["CMD-SHELL","cqlsh -e 'describe cluster'"]
-      interval: 10s
-      timeout: 10s
-      retries: 30
-      start_period: 60s
-
-  cassandra-2:
-    image: cassandra:4.1.3
-    container_name: cassandra-2
-    environment:
-      CASSANDRA_CLUSTER_NAME: taxi-cluster
-      CASSANDRA_DC: datacenter1
-      CASSANDRA_RACK: rack2
-      CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
-      CASSANDRA_LISTEN_ADDRESS: cassandra-2
-      CASSANDRA_BROADCAST_ADDRESS: cassandra-2
-      CASSANDRA_RPC_ADDRESS: 0.0.0.0
-      MAX_HEAP_SIZE: 256M
-      HEAP_NEWSIZE: 64M
-
-    ports:
-      - "9043:9042"
-
-    volumes:
-      - cassandra-2-data:/var/lib/cassandra
-
-    networks:
-      - taxi-network
-
-    healthcheck:
-      test: ["CMD-SHELL","cqlsh -e 'describe cluster'"]
-      interval: 10s
-      timeout: 10s
-      retries: 30
-      start_period: 60s
-
-    depends_on:
-      cassandra-1:
-        condition: service_healthy
-
-  cassandra-3:
-    image: cassandra:4.1.3
-    container_name: cassandra-3
-    environment:
-      CASSANDRA_CLUSTER_NAME: taxi-cluster
-      CASSANDRA_DC: datacenter1
-      CASSANDRA_RACK: rack3
-      CASSANDRA_SEEDS: cassandra-1,cassandra-2,cassandra-3
-      CASSANDRA_LISTEN_ADDRESS: cassandra-3
-      CASSANDRA_BROADCAST_ADDRESS: cassandra-3
-      CASSANDRA_RPC_ADDRESS: 0.0.0.0
-      MAX_HEAP_SIZE: 256M
-      HEAP_NEWSIZE: 64M
-
-    ports:
-      - "9044:9042"
-
-    volumes:
-      - cassandra-3-data:/var/lib/cassandra
-
-    networks:
-      - taxi-network
-
-    healthcheck:
-      test: ["CMD-SHELL","cqlsh -e 'describe cluster'"]
-      interval: 10s
-      timeout: 10s
-      retries: 30
-      start_period: 60s
-
-    depends_on:
-      cassandra-2:
-        condition: service_healthy
 
 volumes:
-  cassandra-1-data:
-  cassandra-2-data:
-  cassandra-3-data:
+  spark-warehouse:
 
 networks:
   taxi-network:

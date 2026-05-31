@@ -1,0 +1,60 @@
+services:
+  configsvr:
+    image: mongo:7.0
+    container_name: mongo-configsvr
+    command: ["mongod", "--configsvr", "--replSet", "cfgRS", "--port", "27019", "--bind_ip_all"]
+    volumes:
+      - configsvr-data:/data/db
+    networks:
+      - mongo-cluster
+
+  shard1:
+    image: mongo:7.0
+    container_name: mongo-shard1
+    command: ["mongod", "--shardsvr", "--replSet", "shard1RS", "--port", "27018", "--bind_ip_all"]
+    volumes:
+      - shard1-data:/data/db
+    networks:
+      - mongo-cluster
+
+  shard2:
+    image: mongo:7.0
+    container_name: mongo-shard2
+    command: ["mongod", "--shardsvr", "--replSet", "shard2RS", "--port", "27018", "--bind_ip_all"]
+    volumes:
+      - shard2-data:/data/db
+    networks:
+      - mongo-cluster
+
+  shard3:
+    image: mongo:7.0
+    container_name: mongo-shard3
+    command: ["mongod", "--shardsvr", "--replSet", "shard3RS", "--port", "27018", "--bind_ip_all"]
+    volumes:
+      - shard3-data:/data/db
+    networks:
+      - mongo-cluster
+
+  mongos:
+    image: mongo:7.0
+    container_name: mongo-mongos
+    depends_on:
+      - configsvr
+      - shard1
+      - shard2
+      - shard3
+    command: ["mongos", "--configdb", "cfgRS/configsvr:27019", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27017:27017"
+    networks:
+      - mongo-cluster
+
+volumes:
+  configsvr-data:
+  shard1-data:
+  shard2-data:
+  shard3-data:
+
+networks:
+  mongo-cluster:
+    driver: bridge

@@ -1,0 +1,12 @@
+services:
+  mongodb-centralized:
+    image: mongo:7.0
+    container_name: mongo-centralized
+    command: ["mongod", "--bind_ip_all", "--port", "27017"]
+    ports:
+      - "27027:27017"
+    volumes:
+      - centralized-data:/data/db
+
+volumes:
+  centralized-data:

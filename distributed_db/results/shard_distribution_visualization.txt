@@ -1,0 +1,17 @@
+Shard Distribution Visualization
+================================
+
+Post-split owned documents by shard:
+
+shard1RS  | ████████████████████████████             | 68070
+shard2RS  | █████████████████████████████            | 68272
+shard3RS  | ████████████████████████████             | 63658
+
+Orphaned documents after chunk migration:
+
+shard2RS  | ████████████████████████████████████████ | 131728
+
+Notes:
+- `owned documents` are the live chunk ownership totals after forcing splits.
+- `orphaned documents` are leftover records awaiting cleanup on the source shard.
+- The collection is now split into three chunks across three shards.
