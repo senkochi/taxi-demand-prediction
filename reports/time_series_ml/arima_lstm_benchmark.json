@@ -1,0 +1,159 @@
+{
+  "methods": [
+    "baseline",
+    "method1",
+    "method2",
+    "method3"
+  ],
+  "max_rows": 2000,
+  "test_size": 0.2,
+  "random_state": 42,
+  "results": [
+    {
+      "method": "baseline",
+      "model": "arima_111",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": 7.116898121761291,
+      "rmse": 8.122639983746778,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "baseline",
+      "model": "lstm_seq48",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": NaN,
+      "rmse": NaN,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "method1",
+      "model": "arima_111",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": 7.116898121761291,
+      "rmse": 8.122639983746778,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "method1",
+      "model": "lstm_seq48",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": NaN,
+      "rmse": NaN,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "method2",
+      "model": "arima_111",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": 7.116898121761291,
+      "rmse": 8.122639983746778,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "method2",
+      "model": "lstm_seq48",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": NaN,
+      "rmse": NaN,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "method3",
+      "model": "arima_111",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": 7.116898121761291,
+      "rmse": 8.122639983746778,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "method3",
+      "model": "lstm_seq48",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": NaN,
+      "rmse": NaN,
+      "r2": 0.0,
+      "mape": 0.0
+    }
+  ],
+  "best_by_method": [
+    {
+      "method": "baseline",
+      "model": "arima_111",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": 7.116898121761291,
+      "rmse": 8.122639983746778,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "method1",
+      "model": "arima_111",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": 7.116898121761291,
+      "rmse": 8.122639983746778,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "method2",
+      "model": "arima_111",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": 7.116898121761291,
+      "rmse": 8.122639983746778,
+      "r2": 0.0,
+      "mape": 0.0
+    },
+    {
+      "method": "method3",
+      "model": "arima_111",
+      "train_points": 7,
+      "test_points": 1,
+      "train_seconds": 0.0,
+      "predict_seconds": 0.0,
+      "mae": 7.116898121761291,
+      "rmse": 8.122639983746778,
+      "r2": 0.0,
+      "mape": 0.0
+    }
+  ]
+}

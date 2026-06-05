@@ -30,7 +30,7 @@ def main():
     device = stable.torch.device("cuda" if stable.torch.cuda.is_available() else "cpu")
 
     stable.print_header(f"SINGLE-METHOD TRAINER: {method}")
-    stable.print(f"[Env] Device: {device}")
+    print(f"[Env] Device: {device}")
     stable.summarize_data_source(stable.DEFAULT_DUCKDB_PATH)
     stable.summarize_cluster_artifacts([method])
 

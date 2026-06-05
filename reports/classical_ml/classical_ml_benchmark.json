@@ -1,0 +1,171 @@
+{
+  "methods": [
+    "baseline",
+    "method1",
+    "method2",
+    "method3"
+  ],
+  "max_rows": 0,
+  "test_size": 0.2,
+  "random_state": 42,
+  "results": [
+    {
+      "method": "baseline",
+      "model": "ridge_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 7.2519331999938,
+      "predict_seconds": 0.06902229998377152,
+      "mae": 3.5549014111733297,
+      "rmse": 4.829767122734507,
+      "r2": -1.7801452397451505,
+      "mape": 230.49310323865137
+    },
+    {
+      "method": "baseline",
+      "model": "sgd_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 13.28644590001204,
+      "predict_seconds": 0.07930800001486205,
+      "mae": 3.555045739865344,
+      "rmse": 4.830572012533986,
+      "r2": -1.7810719498522887,
+      "mape": 230.44672856714797
+    },
+    {
+      "method": "method1",
+      "model": "ridge_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 8.284935800009407,
+      "predict_seconds": 0.0802937000116799,
+      "mae": 4.211965607325688,
+      "rmse": 5.418195305240858,
+      "r2": -2.498842670843049,
+      "mape": 260.75286784472434
+    },
+    {
+      "method": "method1",
+      "model": "sgd_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 11.196529400011059,
+      "predict_seconds": 0.07392910000635311,
+      "mae": 4.2124856589056066,
+      "rmse": 5.419264505561346,
+      "r2": -2.500223696297475,
+      "mape": 260.7128755306441
+    },
+    {
+      "method": "method2",
+      "model": "ridge_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 6.2865143999806605,
+      "predict_seconds": 0.07056190000730567,
+      "mae": 3.764787987680632,
+      "rmse": 4.7766459130305305,
+      "r2": -1.7193255339270839,
+      "mape": 250.0858771985296
+    },
+    {
+      "method": "method2",
+      "model": "sgd_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 9.148781500000041,
+      "predict_seconds": 0.06612290002522059,
+      "mae": 3.7634874235500955,
+      "rmse": 4.775653446761711,
+      "r2": -1.71819563711654,
+      "mape": 249.86166314666968
+    },
+    {
+      "method": "method3",
+      "model": "ridge_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 6.8775795999972615,
+      "predict_seconds": 0.07580779999261722,
+      "mae": 4.985371042782904,
+      "rmse": 5.966004981819904,
+      "r2": -3.2421139139410817,
+      "mape": 306.6372623502629
+    },
+    {
+      "method": "method3",
+      "model": "sgd_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 10.626214399992023,
+      "predict_seconds": 0.08376059998408891,
+      "mae": 4.9856576812642714,
+      "rmse": 5.965914835656441,
+      "r2": -3.241985718471459,
+      "mape": 306.53703929345755
+    }
+  ],
+  "best_by_method": [
+    {
+      "method": "baseline",
+      "model": "ridge_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 7.2519331999938,
+      "predict_seconds": 0.06902229998377152,
+      "mae": 3.5549014111733297,
+      "rmse": 4.829767122734507,
+      "r2": -1.7801452397451505,
+      "mape": 230.49310323865137
+    },
+    {
+      "method": "method1",
+      "model": "ridge_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 8.284935800009407,
+      "predict_seconds": 0.0802937000116799,
+      "mae": 4.211965607325688,
+      "rmse": 5.418195305240858,
+      "r2": -2.498842670843049,
+      "mape": 260.75286784472434
+    },
+    {
+      "method": "method2",
+      "model": "sgd_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 9.148781500000041,
+      "predict_seconds": 0.06612290002522059,
+      "mae": 3.7634874235500955,
+      "rmse": 4.775653446761711,
+      "r2": -1.71819563711654,
+      "mape": 249.86166314666968
+    },
+    {
+      "method": "method3",
+      "model": "ridge_regressor",
+      "train_rows": 3175212,
+      "test_rows": 338621,
+      "num_features": 12,
+      "train_seconds": 6.8775795999972615,
+      "predict_seconds": 0.07580779999261722,
+      "mae": 4.985371042782904,
+      "rmse": 5.966004981819904,
+      "r2": -3.2421139139410817,
+      "mape": 306.6372623502629
+    }
+  ]
+}
